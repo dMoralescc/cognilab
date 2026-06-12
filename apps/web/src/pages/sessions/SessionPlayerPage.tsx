@@ -4,6 +4,7 @@ import { useSession, useStartSession } from '../../hooks/useSessions';
 import { api } from '../../lib/api';
 import { CancellationPlayer } from './exercises/CancellationPlayer';
 import { VisualSearchPlayer } from './exercises/VisualSearchPlayer';
+import { GoNoGoPlayer } from './exercises/GoNoGoPlayer';
 
 const AREA_LABELS: Record<string, string> = {
   ATTENTION: 'Atención',
@@ -203,6 +204,12 @@ export function SessionPlayerPage() {
               level={currentItem.level}
               seed={Date.now()}
               elapsedMs={elapsed * 1000}
+              onComplete={(result) => { void submitResult(result); }}
+            />
+          ) : currentItem.exercise.slug === 'go-no-go' ? (
+            <GoNoGoPlayer
+              level={currentItem.level}
+              seed={Date.now()}
               onComplete={(result) => { void submitResult(result); }}
             />
           ) : (
