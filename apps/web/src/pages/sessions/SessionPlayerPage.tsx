@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useSession, useStartSession } from '../../hooks/useSessions';
 import { api } from '../../lib/api';
 import { CancellationPlayer } from './exercises/CancellationPlayer';
+import { VisualSearchPlayer } from './exercises/VisualSearchPlayer';
 
 const AREA_LABELS: Record<string, string> = {
   ATTENTION: 'Atención',
@@ -192,6 +193,13 @@ export function SessionPlayerPage() {
         <div className="rounded-xl border border-gray-200 bg-white p-6">
           {currentItem.exercise.slug === 'cancellation' ? (
             <CancellationPlayer
+              level={currentItem.level}
+              seed={Date.now()}
+              elapsedMs={elapsed * 1000}
+              onComplete={(result) => { void submitResult(result); }}
+            />
+          ) : currentItem.exercise.slug === 'visual-search' ? (
+            <VisualSearchPlayer
               level={currentItem.level}
               seed={Date.now()}
               elapsedMs={elapsed * 1000}
