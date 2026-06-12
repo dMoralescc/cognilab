@@ -8,12 +8,16 @@ datasource db {
 }
 
 model Professional {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  name      String
-  password  String
-  patients  Patient[]
-  createdAt DateTime  @default(now())
+  id                         String    @id @default(cuid())
+  email                      String    @unique
+  name                       String
+  password                   String
+  emailVerified              Boolean   @default(false)
+  verificationToken          String?   @unique
+  verificationTokenExpiresAt DateTime?
+  refreshToken               String?
+  patients                   Patient[]
+  createdAt                  DateTime  @default(now())
 }
 
 model Patient {
