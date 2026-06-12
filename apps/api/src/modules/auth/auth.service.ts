@@ -44,7 +44,16 @@ export class AuthService {
       select: { id: true, email: true, name: true },
     });
 
-    await this.mail.sendVerificationEmail(dto.email, dto.name, verificationToken);
+    const mailEnabled = this.config.get('MAIL_ENABLED') !== 'false';
+
+    if (mailEnabled) {
+      await this.mail.sendVerificationEmail(dto.email, dto.name, verificationToken);
+    } else {
+      await this.prisma.professional.update({
+        where: { id: professional.id },
+        data: { emailVerified: true, verificationToken: null, verificationTokenExpiresAt: null },
+      });
+    }
 
     const tokens = await this.generateTokens(professional.id, professional.email);
     await this.saveRefreshToken(professional.id, tokens.refreshToken);
