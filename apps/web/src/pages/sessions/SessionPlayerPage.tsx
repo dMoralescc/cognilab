@@ -24,6 +24,18 @@ import { VisualRecognitionPlayer } from './exercises/VisualRecognitionPlayer';
 import { SpatialWorkingMemoryPlayer } from './exercises/SpatialWorkingMemoryPlayer';
 import { EpisodicMemoryPlayer } from './exercises/EpisodicMemoryPlayer';
 import { VisuospatialSpanPlayer } from './exercises/VisuospatialSpanPlayer';
+import { StroopPlayer } from './exercises/StroopPlayer';
+import { TrailMakingPlayer } from './exercises/TrailMakingPlayer';
+import { TowerOfHanoiPlayer } from './exercises/TowerOfHanoiPlayer';
+import { RoutePlanningPlayer } from './exercises/RoutePlanningPlayer';
+import { InhibitionPlayer } from './exercises/InhibitionPlayer';
+import { CognitiveFlexibilityPlayer } from './exercises/CognitiveFlexibilityPlayer';
+import { AbstractReasoningPlayer } from './exercises/AbstractReasoningPlayer';
+import { CategorizationPlayer } from './exercises/CategorizationPlayer';
+import { ProblemSolvingPlayer } from './exercises/ProblemSolvingPlayer';
+import { DesignFluencyPlayer } from './exercises/DesignFluencyPlayer';
+import { NBackPlayer } from './exercises/NBackPlayer';
+import { DualTaskPlayer } from './exercises/DualTaskPlayer';
 
 const AREA_LABELS: Record<string, string> = {
   ATTENTION: 'Atención',
@@ -297,6 +309,30 @@ export function SessionPlayerPage() {
             <EpisodicMemoryPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
           ) : currentItem.exercise.slug === 'visuospatial-span' ? (
             <VisuospatialSpanPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'stroop' ? (
+            <StroopPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'trail-making' ? (
+            <TrailMakingPlayer level={currentItem.level} seed={Date.now()} elapsedMs={elapsed * 1000} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'tower-of-hanoi' ? (
+            <TowerOfHanoiPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'route-planning' ? (
+            <RoutePlanningPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'inhibition' ? (
+            <InhibitionPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'cognitive-flexibility' ? (
+            <CognitiveFlexibilityPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'abstract-reasoning' ? (
+            <AbstractReasoningPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'categorization' ? (
+            <CategorizationPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'problem-solving' ? (
+            <ProblemSolvingPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'design-fluency' ? (
+            <DesignFluencyPlayer level={currentItem.level} seed={Date.now()} elapsedMs={elapsed * 1000} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'n-back' ? (
+            <NBackPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'dual-task' ? (
+            <DualTaskPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
           ) : (
             <ExercisePlaceholder
               exercise={currentItem.exercise}

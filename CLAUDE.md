@@ -804,18 +804,18 @@ export interface EvaluationResult {
 - [x] **2.22** Span visoespacial
 
 #### Funciones ejecutivas
-- [ ] **2.23** Stroop adaptado
-- [ ] **2.24** Trail Making A y B
-- [ ] **2.25** Torre de Hanói
-- [ ] **2.26** Planificación de rutas
-- [ ] **2.27** Inhibición (stop-signal)
-- [ ] **2.28** Flexibilidad cognitiva
-- [ ] **2.29** Razonamiento abstracto
-- [ ] **2.30** Categorización
-- [ ] **2.31** Resolución de problemas
-- [ ] **2.32** Fluidez de diseño
-- [ ] **2.33** N-back
-- [ ] **2.34** Doble tarea
+- [x] **2.23** Stroop adaptado
+- [x] **2.24** Trail Making A y B
+- [x] **2.25** Torre de Hanói
+- [x] **2.26** Planificación de rutas
+- [x] **2.27** Inhibición (stop-signal)
+- [x] **2.28** Flexibilidad cognitiva
+- [x] **2.29** Razonamiento abstracto
+- [x] **2.30** Categorización
+- [x] **2.31** Resolución de problemas
+- [x] **2.32** Fluidez de diseño
+- [x] **2.33** N-back
+- [x] **2.34** Doble tarea
 
 #### Lenguaje
 - [ ] **2.35** Fluidez verbal fonológica

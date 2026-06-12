@@ -1,3 +1,17 @@
+// Executive Functions
+export * as stroop from './executive/stroop';
+export * as trailMaking from './executive/trail-making';
+export * as towerOfHanoi from './executive/tower-of-hanoi';
+export * as routePlanning from './executive/route-planning';
+export * as inhibition from './executive/inhibition';
+export * as cognitiveFlexibility from './executive/cognitive-flexibility';
+export * as abstractReasoning from './executive/abstract-reasoning';
+export * as categorization from './executive/categorization';
+export * as problemSolving from './executive/problem-solving';
+export * as designFluency from './executive/design-fluency';
+export * as nBack from './executive/n-back';
+export * as dualTask from './executive/dual-task';
+
 // Memory
 export * as digitSpan from './memory/digit-span';
 export * as imagePairs from './memory/image-pairs';
