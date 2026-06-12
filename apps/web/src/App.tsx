@@ -6,6 +6,7 @@ import { Layout } from './components/Layout';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
 import { PatientsPage } from './pages/patients/PatientsPage';
+import { DashboardPage } from './pages/DashboardPage';
 
 export default function App() {
   const init = useAuthStore((s) => s.init);
@@ -18,7 +19,7 @@ export default function App() {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>
-          <Route path="/dashboard" element={<div>Dashboard — próximamente</div>} />
+          <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/pacientes" element={<PatientsPage />} />
           <Route path="/pacientes/:id" element={<div>Perfil — próximamente</div>} />
         </Route>
