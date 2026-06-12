@@ -26,6 +26,16 @@ export * as spatialWorkingMemory from './memory/spatial-working-memory';
 export * as episodicMemory from './memory/episodic-memory';
 export * as visuospatialSpan from './memory/visuospatial-span';
 
+// Language
+export * as phonologicalFluency from './language/phonological-fluency';
+export * as semanticFluency from './language/semantic-fluency';
+export * as naming from './language/naming';
+export * as comprehension from './language/comprehension';
+export * as repetition from './language/repetition';
+export * as reading from './language/reading';
+export * as writing from './language/writing';
+export * as prosody from './language/prosody';
+
 // Attention
 export * as cancellation from './attention/cancellation';
 export * as visualSearch from './attention/visual-search';

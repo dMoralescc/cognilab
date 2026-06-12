@@ -818,14 +818,14 @@ export interface EvaluationResult {
 - [x] **2.34** Doble tarea
 
 #### Lenguaje
-- [ ] **2.35** Fluidez verbal fonológica
-- [ ] **2.36** Fluidez semántica
-- [ ] **2.37** Denominación
-- [ ] **2.38** Comprensión
-- [ ] **2.39** Repetición
-- [ ] **2.40** Lectura
-- [ ] **2.41** Escritura
-- [ ] **2.42** Prosodia
+- [x] **2.35** Fluidez verbal fonológica
+- [x] **2.36** Fluidez semántica
+- [x] **2.37** Denominación
+- [x] **2.38** Comprensión
+- [x] **2.39** Repetición
+- [x] **2.40** Lectura
+- [x] **2.41** Escritura
+- [x] **2.42** Prosodia
 
 #### Visoespacial
 - [ ] **2.43** Rotación mental

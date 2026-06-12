@@ -36,6 +36,14 @@ import { ProblemSolvingPlayer } from './exercises/ProblemSolvingPlayer';
 import { DesignFluencyPlayer } from './exercises/DesignFluencyPlayer';
 import { NBackPlayer } from './exercises/NBackPlayer';
 import { DualTaskPlayer } from './exercises/DualTaskPlayer';
+import { PhonologicalFluencyPlayer } from './exercises/PhonologicalFluencyPlayer';
+import { SemanticFluencyPlayer } from './exercises/SemanticFluencyPlayer';
+import { NamingPlayer } from './exercises/NamingPlayer';
+import { ComprehensionPlayer } from './exercises/ComprehensionPlayer';
+import { RepetitionPlayer } from './exercises/RepetitionPlayer';
+import { ReadingPlayer } from './exercises/ReadingPlayer';
+import { WritingPlayer } from './exercises/WritingPlayer';
+import { ProsodyPlayer } from './exercises/ProsodyPlayer';
 
 const AREA_LABELS: Record<string, string> = {
   ATTENTION: 'Atención',
@@ -333,6 +341,22 @@ export function SessionPlayerPage() {
             <NBackPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
           ) : currentItem.exercise.slug === 'dual-task' ? (
             <DualTaskPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'phonological-fluency' ? (
+            <PhonologicalFluencyPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'semantic-fluency' ? (
+            <SemanticFluencyPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'naming' ? (
+            <NamingPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'comprehension' ? (
+            <ComprehensionPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'repetition' ? (
+            <RepetitionPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'reading' ? (
+            <ReadingPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'writing' ? (
+            <WritingPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'prosody' ? (
+            <ProsodyPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
           ) : (
             <ExercisePlaceholder
               exercise={currentItem.exercise}
