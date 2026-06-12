@@ -828,14 +828,14 @@ export interface EvaluationResult {
 - [x] **2.42** Prosodia
 
 #### Visoespacial
-- [ ] **2.43** Rotación mental
-- [ ] **2.44** Copia de figuras
-- [ ] **2.45** Rompecabezas
-- [ ] **2.46** Laberintos
-- [ ] **2.47** Percepción de profundidad
-- [ ] **2.48** Ensamblaje de objetos
-- [ ] **2.49** Discriminación de formas
-- [ ] **2.50** Orientación de líneas
+- [x] **2.43** Rotación mental
+- [x] **2.44** Copia de figuras
+- [x] **2.45** Rompecabezas
+- [x] **2.46** Laberintos
+- [x] **2.47** Percepción de profundidad
+- [x] **2.48** Ensamblaje de objetos
+- [x] **2.49** Discriminación de formas
+- [x] **2.50** Orientación de líneas
 
 #### Orientación
 - [ ] **2.51** Orientación temporal

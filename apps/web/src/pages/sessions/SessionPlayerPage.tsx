@@ -44,6 +44,14 @@ import { RepetitionPlayer } from './exercises/RepetitionPlayer';
 import { ReadingPlayer } from './exercises/ReadingPlayer';
 import { WritingPlayer } from './exercises/WritingPlayer';
 import { ProsodyPlayer } from './exercises/ProsodyPlayer';
+import { MentalRotationPlayer } from './exercises/MentalRotationPlayer';
+import { FigureCopyPlayer } from './exercises/FigureCopyPlayer';
+import { PuzzlePlayer } from './exercises/PuzzlePlayer';
+import { MazePlayer } from './exercises/MazePlayer';
+import { DepthPerceptionPlayer } from './exercises/DepthPerceptionPlayer';
+import { ObjectAssemblyPlayer } from './exercises/ObjectAssemblyPlayer';
+import { ShapeDiscriminationPlayer } from './exercises/ShapeDiscriminationPlayer';
+import { LineOrientationPlayer } from './exercises/LineOrientationPlayer';
 
 const AREA_LABELS: Record<string, string> = {
   ATTENTION: 'Atención',
@@ -357,6 +365,22 @@ export function SessionPlayerPage() {
             <WritingPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
           ) : currentItem.exercise.slug === 'prosody' ? (
             <ProsodyPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'mental-rotation' ? (
+            <MentalRotationPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'figure-copy' ? (
+            <FigureCopyPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'puzzle' ? (
+            <PuzzlePlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'maze' ? (
+            <MazePlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'depth-perception' ? (
+            <DepthPerceptionPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'object-assembly' ? (
+            <ObjectAssemblyPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'shape-discrimination' ? (
+            <ShapeDiscriminationPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'line-orientation' ? (
+            <LineOrientationPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
           ) : (
             <ExercisePlaceholder
               exercise={currentItem.exercise}

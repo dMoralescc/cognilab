@@ -26,6 +26,16 @@ export * as spatialWorkingMemory from './memory/spatial-working-memory';
 export * as episodicMemory from './memory/episodic-memory';
 export * as visuospatialSpan from './memory/visuospatial-span';
 
+// Visuospatial
+export * as mentalRotation from './visuospatial/mental-rotation';
+export * as figureCopy from './visuospatial/figure-copy';
+export * as puzzle from './visuospatial/puzzle';
+export * as maze from './visuospatial/maze';
+export * as depthPerception from './visuospatial/depth-perception';
+export * as objectAssembly from './visuospatial/object-assembly';
+export * as shapeDiscrimination from './visuospatial/shape-discrimination';
+export * as lineOrientation from './visuospatial/line-orientation';
+
 // Language
 export * as phonologicalFluency from './language/phonological-fluency';
 export * as semanticFluency from './language/semantic-fluency';
