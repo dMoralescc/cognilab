@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Professional {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String
+  password  String
+  patients  Patient[]
+  createdAt DateTime  @default(now())
+}
+
+model Patient {
+  id             String       @id @default(cuid())
+  name           String
+  birthDate      DateTime?
+  diagnosis      String?
+  notes          String?
+  professionalId String
+  professional   Professional @relation(fields: [professionalId], references: [id])
+  sessions       Session[]
+  createdAt      DateTime     @default(now())
+  archivedAt     DateTime?
+}
+
+model Exercise {
+  id            String        @id @default(cuid())
+  slug          String        @unique
+  title         String
+  description   String
+  cognitiveArea CognitiveArea
+  type          ExerciseType
+  minLevel      Int           @default(1)
+  maxLevel      Int           @default(5)
+  createdAt     DateTime      @default(now())
+  sessionItems  SessionItem[]
+}
+
+model Session {
+  id        String        @id @default(cuid())
+  patientId String
+  patient   Patient       @relation(fields: [patientId], references: [id])
+  items     SessionItem[]
+  status    SessionStatus @default(PENDING)
+  startAt   DateTime?
+  endAt     DateTime?
+  dueDate   DateTime?
+  remote    Boolean       @default(false)
+  createdAt DateTime      @default(now())
+}
+
+model SessionItem {
+  id         String   @id @default(cuid())
+  sessionId  String
+  session    Session  @relation(fields: [sessionId], references: [id])
+  exerciseId String
+  exercise   Exercise @relation(fields: [exerciseId], references: [id])
+  level      Int      @default(1)
+  order      Int
+  result     Result?
+}
+
+model Result {
+  id             String      @id @default(cuid())
+  sessionItemId  String      @unique
+  sessionItem    SessionItem @relation(fields: [sessionItemId], references: [id])
+  hits           Int
+  errors         Int
+  reactionTimeMs Int?
+  completedAt    DateTime    @default(now())
+  rawData        Json?
+}
+
+enum CognitiveArea {
+  ATTENTION
+  MEMORY
+  EXECUTIVE_FUNCTIONS
+  LANGUAGE
+  VISUOSPATIAL
+  ORIENTATION
+  SOCIAL_COGNITION
+}
+
+enum ExerciseType {
+  CANCELLATION
+  VISUAL_SEARCH
+  GO_NO_GO
+  DIVIDED_ATTENTION
+  ALTERNATING_ATTENTION
+  ATTENTION_SPAN
+  REACTION_TIME
+  VIGILANCE
+  AUDITORY_ATTENTION
+  VISUAL_TRACKING
+  DIGIT_SPAN
+  IMAGE_PAIRS
+  POSITION_SEQUENCES
+  FACE_MEMORY
+  WORD_MEMORY
+  STORY_MEMORY
+  PROSPECTIVE_MEMORY
+  SEMANTIC_MEMORY
+  VISUAL_RECOGNITION
+  SPATIAL_WORKING_MEMORY
+  EPISODIC_MEMORY
+  VISUOSPATIAL_SPAN
+  STROOP
+  TRAIL_MAKING
+  TOWER_OF_HANOI
+  ROUTE_PLANNING
+  INHIBITION
+  COGNITIVE_FLEXIBILITY
+  ABSTRACT_REASONING
+  CATEGORIZATION
+  PROBLEM_SOLVING
+  DESIGN_FLUENCY
+  N_BACK
+  DUAL_TASK
+  PHONOLOGICAL_FLUENCY
+  SEMANTIC_FLUENCY
+  NAMING
+  COMPREHENSION
+  REPETITION
+  READING
+  WRITING
+  PROSODY
+  MENTAL_ROTATION
+  FIGURE_COPY
+  PUZZLE
+  MAZE
+  DEPTH_PERCEPTION
+  OBJECT_ASSEMBLY
+  SHAPE_DISCRIMINATION
+  LINE_ORIENTATION
+  TEMPORAL_ORIENTATION
+  SPATIAL_ORIENTATION
+  PERSONAL_ORIENTATION
+  SITUATIONAL_ORIENTATION
+  EMOTION_RECOGNITION
+  THEORY_OF_MIND
+  EMPATHY
+  PERSPECTIVE_TAKING
+  MORAL_COGNITION
+  NONVERBAL_COMMUNICATION
+}
+
+enum SessionStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  EXPIRED
+}
