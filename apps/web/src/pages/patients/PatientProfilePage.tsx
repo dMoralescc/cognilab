@@ -5,6 +5,7 @@ import {
 } from 'recharts';
 import { usePatient } from '../../hooks/usePatients';
 import { PatientFormModal } from './PatientFormModal';
+import { CreateSessionModal } from '../sessions/CreateSessionModal';
 
 const areaLabel: Record<string, string> = {
   ATTENTION: 'Atención',
@@ -42,6 +43,7 @@ export function PatientProfilePage() {
   const { id = '' } = useParams();
   const { data: patient, isLoading } = usePatient(id);
   const [editing, setEditing] = useState(false);
+  const [creatingSession, setCreatingSession] = useState(false);
 
   if (isLoading) {
     return (
@@ -90,12 +92,20 @@ export function PatientProfilePage() {
             </p>
           </div>
         </div>
-        <button
-          onClick={() => setEditing(true)}
-          className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
-        >
-          Editar datos
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setCreatingSession(true)}
+            className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
+          >
+            + Nueva sesión
+          </button>
+          <button
+            onClick={() => setEditing(true)}
+            className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
+          >
+            Editar datos
+          </button>
+        </div>
       </div>
 
       {/* Info + notas */}
@@ -225,6 +235,14 @@ export function PatientProfilePage() {
 
       {editing && (
         <PatientFormModal patient={patient} onClose={() => setEditing(false)} />
+      )}
+
+      {creatingSession && (
+        <CreateSessionModal
+          patientId={patient.id}
+          onClose={() => setCreatingSession(false)}
+          onCreated={() => setCreatingSession(false)}
+        />
       )}
     </div>
   );

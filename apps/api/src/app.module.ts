@@ -4,6 +4,8 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { PatientsModule } from './modules/patients/patients.module';
 import { ResultsModule } from './modules/results/results.module';
+import { SessionsModule } from './modules/sessions/sessions.module';
+import { ExercisesModule } from './modules/exercises/exercises.module';
 
 @Module({
   imports: [
@@ -11,6 +13,8 @@ import { ResultsModule } from './modules/results/results.module';
     PrismaModule,
     AuthModule,
     PatientsModule,
+    SessionsModule,
+    ExercisesModule,
     ResultsModule,
   ],
 })
