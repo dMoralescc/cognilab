@@ -52,6 +52,16 @@ import { DepthPerceptionPlayer } from './exercises/DepthPerceptionPlayer';
 import { ObjectAssemblyPlayer } from './exercises/ObjectAssemblyPlayer';
 import { ShapeDiscriminationPlayer } from './exercises/ShapeDiscriminationPlayer';
 import { LineOrientationPlayer } from './exercises/LineOrientationPlayer';
+import { TemporalOrientationPlayer } from './exercises/TemporalOrientationPlayer';
+import { SpatialOrientationPlayer } from './exercises/SpatialOrientationPlayer';
+import { PersonalOrientationPlayer } from './exercises/PersonalOrientationPlayer';
+import { SituationalOrientationPlayer } from './exercises/SituationalOrientationPlayer';
+import { EmotionRecognitionPlayer } from './exercises/EmotionRecognitionPlayer';
+import { TheoryOfMindPlayer } from './exercises/TheoryOfMindPlayer';
+import { EmpathyPlayer } from './exercises/EmpathyPlayer';
+import { PerspectiveTakingPlayer } from './exercises/PerspectiveTakingPlayer';
+import { MoralCognitionPlayer } from './exercises/MoralCognitionPlayer';
+import { NonverbalCommunicationPlayer } from './exercises/NonverbalCommunicationPlayer';
 
 const AREA_LABELS: Record<string, string> = {
   ATTENTION: 'Atención',
@@ -381,6 +391,26 @@ export function SessionPlayerPage() {
             <ShapeDiscriminationPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
           ) : currentItem.exercise.slug === 'line-orientation' ? (
             <LineOrientationPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'temporal-orientation' ? (
+            <TemporalOrientationPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'spatial-orientation' ? (
+            <SpatialOrientationPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'personal-orientation' ? (
+            <PersonalOrientationPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'situational-orientation' ? (
+            <SituationalOrientationPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'emotion-recognition' ? (
+            <EmotionRecognitionPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'theory-of-mind' ? (
+            <TheoryOfMindPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'empathy' ? (
+            <EmpathyPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'perspective-taking' ? (
+            <PerspectiveTakingPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'moral-cognition' ? (
+            <MoralCognitionPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'nonverbal-communication' ? (
+            <NonverbalCommunicationPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
           ) : (
             <ExercisePlaceholder
               exercise={currentItem.exercise}

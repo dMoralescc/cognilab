@@ -26,6 +26,20 @@ export * as spatialWorkingMemory from './memory/spatial-working-memory';
 export * as episodicMemory from './memory/episodic-memory';
 export * as visuospatialSpan from './memory/visuospatial-span';
 
+// Orientation
+export * as temporalOrientation from './orientation/temporal-orientation';
+export * as spatialOrientation from './orientation/spatial-orientation';
+export * as personalOrientation from './orientation/personal-orientation';
+export * as situationalOrientation from './orientation/situational-orientation';
+
+// Social Cognition
+export * as emotionRecognition from './social/emotion-recognition';
+export * as theoryOfMind from './social/theory-of-mind';
+export * as empathy from './social/empathy';
+export * as perspectiveTaking from './social/perspective-taking';
+export * as moralCognition from './social/moral-cognition';
+export * as nonverbalCommunication from './social/nonverbal-communication';
+
 // Visuospatial
 export * as mentalRotation from './visuospatial/mental-rotation';
 export * as figureCopy from './visuospatial/figure-copy';

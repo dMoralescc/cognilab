@@ -838,18 +838,18 @@ export interface EvaluationResult {
 - [x] **2.50** Orientación de líneas
 
 #### Orientación
-- [ ] **2.51** Orientación temporal
-- [ ] **2.52** Orientación espacial
-- [ ] **2.53** Orientación personal
-- [ ] **2.54** Orientación situacional
+- [x] **2.51** Orientación temporal
+- [x] **2.52** Orientación espacial
+- [x] **2.53** Orientación personal
+- [x] **2.54** Orientación situacional
 
 #### Cognición social
-- [ ] **2.55** Reconocimiento de emociones
-- [ ] **2.56** Teoría de la mente
-- [ ] **2.57** Empatía
-- [ ] **2.58** Toma de perspectiva
-- [ ] **2.59** Cognición moral
-- [ ] **2.60** Comunicación no verbal
+- [x] **2.55** Reconocimiento de emociones
+- [x] **2.56** Teoría de la mente
+- [x] **2.57** Empatía
+- [x] **2.58** Toma de perspectiva
+- [x] **2.59** Cognición moral
+- [x] **2.60** Comunicación no verbal
 
 ---
 
