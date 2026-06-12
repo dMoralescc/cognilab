@@ -6,6 +6,7 @@ import { Layout } from './components/Layout';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
 import { PatientsPage } from './pages/patients/PatientsPage';
+import { PatientProfilePage } from './pages/patients/PatientProfilePage';
 import { DashboardPage } from './pages/DashboardPage';
 
 export default function App() {
@@ -21,7 +22,7 @@ export default function App() {
         <Route element={<Layout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/pacientes" element={<PatientsPage />} />
-          <Route path="/pacientes/:id" element={<div>Perfil — próximamente</div>} />
+          <Route path="/pacientes/:id" element={<PatientProfilePage />} />
         </Route>
       </Route>
 
