@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useExercises, useCreateSession, type Exercise } from '../../hooks/useSessions';
 
 const AREA_LABELS: Record<string, string> = {
@@ -25,6 +26,7 @@ interface Props {
 }
 
 export function CreateSessionModal({ patientId, onClose, onCreated }: Props) {
+  const navigate = useNavigate();
   const [selectedArea, setSelectedArea] = useState('');
   const [selected, setSelected] = useState<SelectedItem[]>([]);
   const [dueDate, setDueDate] = useState('');
@@ -66,6 +68,7 @@ export function CreateSessionModal({ patientId, onClose, onCreated }: Props) {
         ...(dueDate && { dueDate }),
       });
       onCreated(session.id);
+      navigate(`/sesiones/${session.id}`);
     } catch {
       setError('Error al crear la sesión');
     }
