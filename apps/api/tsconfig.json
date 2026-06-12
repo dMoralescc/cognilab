@@ -1,6 +1,7 @@
 {
   "extends": "@cognilab/tsconfig/nestjs.json",
   "compilerOptions": {
+    "outDir": "./dist",
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
