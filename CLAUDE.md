@@ -778,16 +778,16 @@ export interface EvaluationResult {
 ### FASE 2 — Ejercicios cognitivos (Semanas 9–20)
 
 #### Atención
-- [ ] **2.1** Cancelación de símbolos
-- [ ] **2.2** Búsqueda visual
-- [ ] **2.3** Go/No-Go
-- [ ] **2.4** Atención dividida
-- [ ] **2.5** Atención alternante
-- [ ] **2.6** Span atencional
-- [ ] **2.7** Tiempo de reacción
-- [ ] **2.8** Vigilancia
-- [ ] **2.9** Atención selectiva auditiva
-- [ ] **2.10** Seguimiento visual
+- [x] **2.1** Cancelación de símbolos
+- [x] **2.2** Búsqueda visual
+- [x] **2.3** Go/No-Go
+- [x] **2.4** Atención dividida
+- [x] **2.5** Atención alternante
+- [x] **2.6** Span atencional
+- [x] **2.7** Tiempo de reacción
+- [x] **2.8** Vigilancia
+- [x] **2.9** Atención selectiva auditiva
+- [x] **2.10** Seguimiento visual
 
 #### Memoria
 - [ ] **2.11** Dígitos directos e inversos

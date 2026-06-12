@@ -5,6 +5,13 @@ import { api } from '../../lib/api';
 import { CancellationPlayer } from './exercises/CancellationPlayer';
 import { VisualSearchPlayer } from './exercises/VisualSearchPlayer';
 import { GoNoGoPlayer } from './exercises/GoNoGoPlayer';
+import { DividedAttentionPlayer } from './exercises/DividedAttentionPlayer';
+import { AlternatingAttentionPlayer } from './exercises/AlternatingAttentionPlayer';
+import { AttentionSpanPlayer } from './exercises/AttentionSpanPlayer';
+import { ReactionTimePlayer } from './exercises/ReactionTimePlayer';
+import { VigilancePlayer } from './exercises/VigilancePlayer';
+import { AuditoryAttentionPlayer } from './exercises/AuditoryAttentionPlayer';
+import { VisualTrackingPlayer } from './exercises/VisualTrackingPlayer';
 
 const AREA_LABELS: Record<string, string> = {
   ATTENTION: 'Atención',
@@ -208,6 +215,48 @@ export function SessionPlayerPage() {
             />
           ) : currentItem.exercise.slug === 'go-no-go' ? (
             <GoNoGoPlayer
+              level={currentItem.level}
+              seed={Date.now()}
+              onComplete={(result) => { void submitResult(result); }}
+            />
+          ) : currentItem.exercise.slug === 'divided-attention' ? (
+            <DividedAttentionPlayer
+              level={currentItem.level}
+              seed={Date.now()}
+              onComplete={(result) => { void submitResult(result); }}
+            />
+          ) : currentItem.exercise.slug === 'alternating-attention' ? (
+            <AlternatingAttentionPlayer
+              level={currentItem.level}
+              seed={Date.now()}
+              onComplete={(result) => { void submitResult(result); }}
+            />
+          ) : currentItem.exercise.slug === 'attention-span' ? (
+            <AttentionSpanPlayer
+              level={currentItem.level}
+              seed={Date.now()}
+              onComplete={(result) => { void submitResult(result); }}
+            />
+          ) : currentItem.exercise.slug === 'reaction-time' ? (
+            <ReactionTimePlayer
+              level={currentItem.level}
+              seed={Date.now()}
+              onComplete={(result) => { void submitResult(result); }}
+            />
+          ) : currentItem.exercise.slug === 'vigilance' ? (
+            <VigilancePlayer
+              level={currentItem.level}
+              seed={Date.now()}
+              onComplete={(result) => { void submitResult(result); }}
+            />
+          ) : currentItem.exercise.slug === 'auditory-attention' ? (
+            <AuditoryAttentionPlayer
+              level={currentItem.level}
+              seed={Date.now()}
+              onComplete={(result) => { void submitResult(result); }}
+            />
+          ) : currentItem.exercise.slug === 'visual-tracking' ? (
+            <VisualTrackingPlayer
               level={currentItem.level}
               seed={Date.now()}
               onComplete={(result) => { void submitResult(result); }}
