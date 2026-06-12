@@ -12,6 +12,18 @@ import { ReactionTimePlayer } from './exercises/ReactionTimePlayer';
 import { VigilancePlayer } from './exercises/VigilancePlayer';
 import { AuditoryAttentionPlayer } from './exercises/AuditoryAttentionPlayer';
 import { VisualTrackingPlayer } from './exercises/VisualTrackingPlayer';
+import { DigitSpanPlayer } from './exercises/DigitSpanPlayer';
+import { ImagePairsPlayer } from './exercises/ImagePairsPlayer';
+import { PositionSequencesPlayer } from './exercises/PositionSequencesPlayer';
+import { FaceMemoryPlayer } from './exercises/FaceMemoryPlayer';
+import { WordMemoryPlayer } from './exercises/WordMemoryPlayer';
+import { StoryMemoryPlayer } from './exercises/StoryMemoryPlayer';
+import { ProspectiveMemoryPlayer } from './exercises/ProspectiveMemoryPlayer';
+import { SemanticMemoryPlayer } from './exercises/SemanticMemoryPlayer';
+import { VisualRecognitionPlayer } from './exercises/VisualRecognitionPlayer';
+import { SpatialWorkingMemoryPlayer } from './exercises/SpatialWorkingMemoryPlayer';
+import { EpisodicMemoryPlayer } from './exercises/EpisodicMemoryPlayer';
+import { VisuospatialSpanPlayer } from './exercises/VisuospatialSpanPlayer';
 
 const AREA_LABELS: Record<string, string> = {
   ATTENTION: 'Atención',
@@ -261,6 +273,30 @@ export function SessionPlayerPage() {
               seed={Date.now()}
               onComplete={(result) => { void submitResult(result); }}
             />
+          ) : currentItem.exercise.slug === 'digit-span' ? (
+            <DigitSpanPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'image-pairs' ? (
+            <ImagePairsPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'position-sequences' ? (
+            <PositionSequencesPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'face-memory' ? (
+            <FaceMemoryPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'word-memory' ? (
+            <WordMemoryPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'story-memory' ? (
+            <StoryMemoryPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'prospective-memory' ? (
+            <ProspectiveMemoryPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'semantic-memory' ? (
+            <SemanticMemoryPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'visual-recognition' ? (
+            <VisualRecognitionPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'spatial-working-memory' ? (
+            <SpatialWorkingMemoryPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'episodic-memory' ? (
+            <EpisodicMemoryPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
+          ) : currentItem.exercise.slug === 'visuospatial-span' ? (
+            <VisuospatialSpanPlayer level={currentItem.level} seed={Date.now()} onComplete={(r) => { void submitResult(r); }} />
           ) : (
             <ExercisePlaceholder
               exercise={currentItem.exercise}

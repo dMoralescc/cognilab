@@ -1,3 +1,17 @@
+// Memory
+export * as digitSpan from './memory/digit-span';
+export * as imagePairs from './memory/image-pairs';
+export * as positionSequences from './memory/position-sequences';
+export * as faceMemory from './memory/face-memory';
+export * as wordMemory from './memory/word-memory';
+export * as storyMemory from './memory/story-memory';
+export * as prospectiveMemory from './memory/prospective-memory';
+export * as semanticMemory from './memory/semantic-memory';
+export * as visualRecognition from './memory/visual-recognition';
+export * as spatialWorkingMemory from './memory/spatial-working-memory';
+export * as episodicMemory from './memory/episodic-memory';
+export * as visuospatialSpan from './memory/visuospatial-span';
+
 // Attention
 export * as cancellation from './attention/cancellation';
 export * as visualSearch from './attention/visual-search';

@@ -790,18 +790,18 @@ export interface EvaluationResult {
 - [x] **2.10** Seguimiento visual
 
 #### Memoria
-- [ ] **2.11** Dígitos directos e inversos
-- [ ] **2.12** Pares de imágenes
-- [ ] **2.13** Secuencias de posiciones
-- [ ] **2.14** Memoria de caras
-- [ ] **2.15** Memoria de palabras
-- [ ] **2.16** Memoria de historias
-- [ ] **2.17** Memoria prospectiva
-- [ ] **2.18** Memoria semántica
-- [ ] **2.19** Reconocimiento visual
-- [ ] **2.20** Memoria de trabajo espacial
-- [ ] **2.21** Memoria episódica
-- [ ] **2.22** Span visoespacial
+- [x] **2.11** Dígitos directos e inversos
+- [x] **2.12** Pares de imágenes
+- [x] **2.13** Secuencias de posiciones
+- [x] **2.14** Memoria de caras
+- [x] **2.15** Memoria de palabras
+- [x] **2.16** Memoria de historias
+- [x] **2.17** Memoria prospectiva
+- [x] **2.18** Memoria semántica
+- [x] **2.19** Reconocimiento visual
+- [x] **2.20** Memoria de trabajo espacial
+- [x] **2.21** Memoria episódica
+- [x] **2.22** Span visoespacial
 
 #### Funciones ejecutivas
 - [ ] **2.23** Stroop adaptado
