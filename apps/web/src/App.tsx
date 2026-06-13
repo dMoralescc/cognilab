@@ -10,6 +10,7 @@ import { PatientProfilePage } from './pages/patients/PatientProfilePage';
 import { SessionPlayerPage } from './pages/sessions/SessionPlayerPage';
 import { SessionSummaryPage } from './pages/sessions/SessionSummaryPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { ExercisesPage } from './pages/ExercisesPage';
 
 export default function App() {
   const init = useAuthStore((s) => s.init);
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/pacientes" element={<PatientsPage />} />
           <Route path="/pacientes/:id" element={<PatientProfilePage />} />
+          <Route path="/ejercicios" element={<ExercisesPage />} />
           <Route path="/sesiones/:id" element={<SessionPlayerPage />} />
           <Route path="/sesiones/:id/resumen" element={<SessionSummaryPage />} />
         </Route>

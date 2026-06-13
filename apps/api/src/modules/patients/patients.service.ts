@@ -51,7 +51,7 @@ export class PatientsService {
           include: {
             items: {
               include: {
-                exercise: { select: { slug: true, title: true, cognitiveArea: true } },
+                exercise: { select: { slug: true, title: true, cognitiveArea: true, minLevel: true, maxLevel: true } },
                 result: true,
               },
             },

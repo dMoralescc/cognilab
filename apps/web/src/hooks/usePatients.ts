@@ -23,7 +23,7 @@ export interface PatientDetail extends Patient {
       id: string;
       level: number;
       order: number;
-      exercise: { slug: string; title: string; cognitiveArea: string };
+      exercise: { slug: string; title: string; cognitiveArea: string; minLevel: number; maxLevel: number };
       result: {
         hits: number;
         errors: number;

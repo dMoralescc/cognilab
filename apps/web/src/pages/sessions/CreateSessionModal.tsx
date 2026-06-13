@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { suggestLevel } from '@cognilab/shared';
 import { useExercises, useCreateSession, type Exercise } from '../../hooks/useSessions';
+import type { PatientDetail } from '../../hooks/usePatients';
 
 const AREA_LABELS: Record<string, string> = {
   ATTENTION: 'Atención',
@@ -21,11 +23,12 @@ interface SelectedItem {
 
 interface Props {
   patientId: string;
+  patientHistory?: PatientDetail['sessions'];
   onClose: () => void;
   onCreated: (sessionId: string) => void;
 }
 
-export function CreateSessionModal({ patientId, onClose, onCreated }: Props) {
+export function CreateSessionModal({ patientId, patientHistory = [], onClose, onCreated }: Props) {
   const navigate = useNavigate();
   const [selectedArea, setSelectedArea] = useState('');
   const [selected, setSelected] = useState<SelectedItem[]>([]);
@@ -35,9 +38,29 @@ export function CreateSessionModal({ patientId, onClose, onCreated }: Props) {
   const { data: exercises = [], isLoading: loadingExercises } = useExercises(selectedArea || undefined);
   const create = useCreateSession();
 
+  // Build a map of slug → past results for auto-level suggestion
+  const historyBySlug = useMemo(() => {
+    const map = new Map<string, Array<{ hits: number; errors: number; level: number }>>();
+    for (const session of patientHistory) {
+      if (session.status !== 'COMPLETED') continue;
+      for (const item of session.items) {
+        if (!item.result) continue;
+        const prev = map.get(item.exercise.slug) ?? [];
+        prev.push({ hits: item.result.hits, errors: item.result.errors, level: item.level });
+        map.set(item.exercise.slug, prev);
+      }
+    }
+    return map;
+  }, [patientHistory]);
+
+  const getAutoLevel = (ex: Exercise) => {
+    const past = historyBySlug.get(ex.slug) ?? [];
+    return suggestLevel(past, ex.minLevel, ex.maxLevel);
+  };
+
   const addExercise = (ex: Exercise) => {
     if (selected.some((s) => s.exercise.id === ex.id)) return;
-    setSelected((prev) => [...prev, { exercise: ex, level: ex.minLevel }]);
+    setSelected((prev) => [...prev, { exercise: ex, level: getAutoLevel(ex) }]);
   };
 
   const removeExercise = (exerciseId: string) => {
@@ -87,7 +110,7 @@ export function CreateSessionModal({ patientId, onClose, onCreated }: Props) {
           {/* Exercise browser */}
           <div className="flex w-1/2 flex-col border-r border-gray-100">
             <div className="border-b border-gray-100 px-4 py-3">
-              <p className="mb-2 text-xs font-medium text-gray-500 uppercase">Área cognitiva</p>
+              <p className="mb-2 text-xs font-medium uppercase text-gray-500">Área cognitiva</p>
               <div className="flex flex-wrap gap-1">
                 <button
                   onClick={() => setSelectedArea('')}
@@ -118,6 +141,8 @@ export function CreateSessionModal({ patientId, onClose, onCreated }: Props) {
                 <ul className="divide-y divide-gray-50">
                   {exercises.map((ex) => {
                     const isAdded = selected.some((s) => s.exercise.id === ex.id);
+                    const suggested = getAutoLevel(ex);
+                    const hasPast = (historyBySlug.get(ex.slug) ?? []).length > 0;
                     return (
                       <li
                         key={ex.id}
@@ -125,7 +150,16 @@ export function CreateSessionModal({ patientId, onClose, onCreated }: Props) {
                       >
                         <div>
                           <p className="text-sm font-medium text-gray-800">{ex.title}</p>
-                          <p className="text-xs text-gray-400">{AREA_LABELS[ex.cognitiveArea]} · Niveles {ex.minLevel}–{ex.maxLevel}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-xs text-gray-400">
+                              {AREA_LABELS[ex.cognitiveArea]} · Niveles {ex.minLevel}–{ex.maxLevel}
+                            </p>
+                            {hasPast && (
+                              <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700">
+                                Nv.{suggested} sugerido
+                              </span>
+                            )}
+                          </div>
                         </div>
                         <button
                           onClick={() => isAdded ? removeExercise(ex.id) : addExercise(ex)}
@@ -144,7 +178,7 @@ export function CreateSessionModal({ patientId, onClose, onCreated }: Props) {
           {/* Selected items + config */}
           <div className="flex w-1/2 flex-col">
             <div className="border-b border-gray-100 px-4 py-3">
-              <p className="text-xs font-medium text-gray-500 uppercase">
+              <p className="text-xs font-medium uppercase text-gray-500">
                 Sesión ({selected.length} ejercicio{selected.length !== 1 ? 's' : ''})
               </p>
             </div>
@@ -156,41 +190,55 @@ export function CreateSessionModal({ patientId, onClose, onCreated }: Props) {
                 </p>
               ) : (
                 <ul className="divide-y divide-gray-50">
-                  {selected.map((s, i) => (
-                    <li key={s.exercise.id} className="flex items-center gap-3 px-4 py-3">
-                      <span className="w-5 text-center text-xs text-gray-400">{i + 1}</span>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-800">{s.exercise.title}</p>
-                        <div className="mt-1 flex items-center gap-1">
-                          <span className="text-xs text-gray-400">Nivel:</span>
-                          {Array.from(
-                            { length: s.exercise.maxLevel - s.exercise.minLevel + 1 },
-                            (_, k) => s.exercise.minLevel + k,
-                          ).map((lv) => (
-                            <button
-                              key={lv}
-                              onClick={() => setLevel(s.exercise.id, lv)}
-                              className={`h-5 w-5 rounded text-xs ${s.level === lv ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
-                            >
-                              {lv}
-                            </button>
-                          ))}
+                  {selected.map((s, i) => {
+                    const suggested = getAutoLevel(s.exercise);
+                    const hasPast = (historyBySlug.get(s.exercise.slug) ?? []).length > 0;
+                    return (
+                      <li key={s.exercise.id} className="flex items-center gap-3 px-4 py-3">
+                        <span className="w-5 text-center text-xs text-gray-400">{i + 1}</span>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-800">{s.exercise.title}</p>
+                          <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                            <span className="text-xs text-gray-400">Nivel:</span>
+                            {Array.from(
+                              { length: s.exercise.maxLevel - s.exercise.minLevel + 1 },
+                              (_, k) => s.exercise.minLevel + k,
+                            ).map((lv) => (
+                              <button
+                                key={lv}
+                                onClick={() => setLevel(s.exercise.id, lv)}
+                                className={`relative h-6 w-6 rounded text-xs font-medium transition-all ${
+                                  s.level === lv
+                                    ? 'bg-indigo-600 text-white shadow-sm'
+                                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                                }`}
+                              >
+                                {lv}
+                                {hasPast && lv === suggested && s.level !== lv && (
+                                  <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-amber-400" />
+                                )}
+                              </button>
+                            ))}
+                            {hasPast && (
+                              <span className="text-xs text-amber-600">↑ Nv.{suggested} auto</span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      <button
-                        onClick={() => removeExercise(s.exercise.id)}
-                        className="text-gray-300 hover:text-red-500"
-                      >
-                        ✕
-                      </button>
-                    </li>
-                  ))}
+                        <button
+                          onClick={() => removeExercise(s.exercise.id)}
+                          className="text-gray-300 hover:text-red-500"
+                        >
+                          ✕
+                        </button>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>
 
             {/* Config footer */}
-            <form onSubmit={handleSubmit} className="border-t border-gray-100 p-4 space-y-3">
+            <form onSubmit={handleSubmit} className="space-y-3 border-t border-gray-100 p-4">
               <div>
                 <label className="mb-1 block text-xs font-medium text-gray-600">
                   Fecha límite (opcional)

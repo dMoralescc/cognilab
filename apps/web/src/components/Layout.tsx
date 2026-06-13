@@ -4,6 +4,7 @@ import { useAuthStore } from '../stores/auth.store';
 const navItems = [
   { to: '/dashboard', label: 'Inicio' },
   { to: '/pacientes', label: 'Pacientes' },
+  { to: '/ejercicios', label: 'Ejercicios' },
 ];
 
 export function Layout() {
