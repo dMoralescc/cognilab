@@ -29,7 +29,7 @@ export class SessionsService {
       },
       include: {
         items: {
-          include: { exercise: { select: { slug: true, title: true, cognitiveArea: true } } },
+          include: { exercise: { select: { slug: true, title: true, description: true, cognitiveArea: true, minLevel: true, maxLevel: true } } },
           orderBy: { order: 'asc' },
         },
       },
@@ -49,7 +49,7 @@ export class SessionsService {
       include: {
         items: {
           include: {
-            exercise: { select: { slug: true, title: true, cognitiveArea: true } },
+            exercise: { select: { slug: true, title: true, description: true, cognitiveArea: true, minLevel: true, maxLevel: true } },
             result: { select: { hits: true, errors: true, reactionTimeMs: true } },
           },
           orderBy: { order: 'asc' },

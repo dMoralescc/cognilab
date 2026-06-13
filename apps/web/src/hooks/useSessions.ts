@@ -15,7 +15,7 @@ export interface SessionItem {
   id: string;
   level: number;
   order: number;
-  exercise: { slug: string; title: string; cognitiveArea: string };
+  exercise: { slug: string; title: string; description: string; cognitiveArea: string; minLevel: number; maxLevel: number };
   result: { hits: number; errors: number; reactionTimeMs: number | null } | null;
 }
 
