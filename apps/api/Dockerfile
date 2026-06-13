@@ -14,6 +14,9 @@ COPY apps/api/prisma ./apps/api/prisma/
 
 RUN pnpm install --frozen-lockfile
 
+# Remove any cached Prisma engine binaries to force a clean prisma generate
+RUN find /app/node_modules -path "*/.prisma/client/libquery_engine-*" -delete 2>/dev/null || true
+
 COPY packages/tsconfig ./packages/tsconfig/
 COPY packages/shared ./packages/shared/
 COPY apps/api ./apps/api/
