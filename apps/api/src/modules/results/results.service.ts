@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   ConflictException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateResultDto } from './dto/create-result.dto';
 
@@ -29,7 +30,7 @@ export class ResultsService {
       hits: dto.hits,
       errors: dto.errors,
       ...(dto.reactionTimeMs !== undefined && { reactionTimeMs: dto.reactionTimeMs }),
-      ...(dto.rawData !== undefined && { rawData: dto.rawData }),
+      ...(dto.rawData !== undefined && { rawData: dto.rawData as Prisma.InputJsonValue }),
     };
 
     const result = await this.prisma.result.create({ data });
