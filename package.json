@@ -16,5 +16,8 @@
   "packageManager": "pnpm@10.0.0",
   "engines": {
     "node": ">=22"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["@nestjs/core", "@prisma/client", "@prisma/engines", "esbuild", "prisma"]
   }
 }
