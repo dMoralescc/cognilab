@@ -63,14 +63,14 @@ import { PerspectiveTakingPlayer } from './exercises/PerspectiveTakingPlayer';
 import { MoralCognitionPlayer } from './exercises/MoralCognitionPlayer';
 import { NonverbalCommunicationPlayer } from './exercises/NonverbalCommunicationPlayer';
 
-const AREA_LABELS: Record<string, string> = {
-  ATTENTION: 'Atención',
-  MEMORY: 'Memoria',
-  EXECUTIVE_FUNCTIONS: 'Func. Ejecutivas',
-  LANGUAGE: 'Lenguaje',
-  VISUOSPATIAL: 'Visoespacial',
-  ORIENTATION: 'Orientación',
-  SOCIAL_COGNITION: 'Cog. Social',
+const AREA_CONFIG: Record<string, { label: string; icon: string; gradient: string; badge: string }> = {
+  ATTENTION:           { label: 'Atención',         icon: '👁️',  gradient: 'from-blue-50 to-indigo-100',    badge: 'bg-blue-100 text-blue-700' },
+  MEMORY:              { label: 'Memoria',           icon: '🧠',  gradient: 'from-purple-50 to-violet-100',  badge: 'bg-purple-100 text-purple-700' },
+  EXECUTIVE_FUNCTIONS: { label: 'Func. Ejecutivas',  icon: '⚡',  gradient: 'from-amber-50 to-orange-100',   badge: 'bg-amber-100 text-amber-700' },
+  LANGUAGE:            { label: 'Lenguaje',          icon: '💬',  gradient: 'from-emerald-50 to-green-100',  badge: 'bg-emerald-100 text-emerald-700' },
+  VISUOSPATIAL:        { label: 'Visoespacial',      icon: '🎯',  gradient: 'from-cyan-50 to-teal-100',      badge: 'bg-cyan-100 text-cyan-700' },
+  ORIENTATION:         { label: 'Orientación',       icon: '🧭',  gradient: 'from-rose-50 to-pink-100',      badge: 'bg-rose-100 text-rose-700' },
+  SOCIAL_COGNITION:    { label: 'Cog. Social',       icon: '🤝',  gradient: 'from-fuchsia-50 to-pink-100',   badge: 'bg-fuchsia-100 text-fuchsia-700' },
 };
 
 function useTimer(active: boolean) {
@@ -215,36 +215,59 @@ export function SessionPlayerPage() {
 
       {/* Start gate */}
       {!started && (
-        <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Sesión lista</h1>
-          <p className="mt-2 text-gray-500">
-            {session.items.length} ejercicio{session.items.length !== 1 ? 's' : ''} programado{session.items.length !== 1 ? 's' : ''}.
-          </p>
-          <button
-            onClick={handleStart}
-            className="mt-6 rounded-lg bg-indigo-600 px-8 py-3 font-medium text-white hover:bg-indigo-700"
-          >
-            Comenzar sesión
-          </button>
+        <div className="animate-slide-up overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <div className="bg-gradient-to-br from-indigo-50 to-violet-100 px-8 pb-8 pt-10 text-center">
+            <div className="mb-3 text-5xl">🧩</div>
+            <h1 className="text-3xl font-bold text-gray-900">Sesión lista</h1>
+            <p className="mt-2 text-gray-600">
+              {session.items.length} ejercicio{session.items.length !== 1 ? 's' : ''} programado{session.items.length !== 1 ? 's' : ''}
+            </p>
+            <div className="mt-4 flex justify-center gap-1.5">
+              {session.items.map((_, i) => (
+                <div key={i} className="h-2 w-6 rounded-full bg-indigo-300" />
+              ))}
+            </div>
+          </div>
+          <div className="px-8 py-6 text-center">
+            <button
+              onClick={handleStart}
+              className="rounded-xl bg-indigo-600 px-10 py-3 text-base font-semibold text-white shadow-md shadow-indigo-200 transition-all hover:bg-indigo-700 hover:shadow-lg active:scale-95"
+            >
+              Comenzar sesión ▶
+            </button>
+          </div>
         </div>
       )}
 
       {/* Exercise intro */}
-      {started && phase === 'intro' && currentItem && (
-        <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
-          <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-600">
-            {AREA_LABELS[currentItem.exercise.cognitiveArea] ?? currentItem.exercise.cognitiveArea}
-          </span>
-          <h2 className="mt-4 text-2xl font-bold text-gray-900">{currentItem.exercise.title}</h2>
-          <p className="mt-2 text-sm text-gray-500">Nivel {currentItem.level} · Ejercicio {currentIndex + 1} de {session.items.length}</p>
-          <button
-            onClick={beginExercise}
-            className="mt-6 rounded-lg bg-indigo-600 px-8 py-3 font-medium text-white hover:bg-indigo-700"
-          >
-            Empezar ejercicio
-          </button>
-        </div>
-      )}
+      {started && phase === 'intro' && currentItem && (() => {
+        const area = AREA_CONFIG[currentItem.exercise.cognitiveArea] ?? { label: currentItem.exercise.cognitiveArea, icon: '🔷', gradient: 'from-gray-50 to-gray-100', badge: 'bg-gray-100 text-gray-700' };
+        return (
+          <div className="animate-slide-up overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <div className={`bg-gradient-to-br ${area.gradient} px-8 pb-6 pt-8 text-center`}>
+              <div className="mb-3 text-5xl">{area.icon}</div>
+              <span className={`rounded-full px-3 py-1 text-xs font-semibold ${area.badge}`}>{area.label}</span>
+              <h2 className="mt-3 text-2xl font-bold text-gray-900">{currentItem.exercise.title}</h2>
+              <p className="mt-2 text-sm text-gray-600">{currentItem.exercise.description}</p>
+            </div>
+            <div className="px-8 pb-8 pt-5 text-center">
+              <div className="mb-5 flex items-center justify-center gap-1.5">
+                {Array.from({ length: currentItem.exercise.maxLevel }, (_, i) => (
+                  <div key={i} className={`h-2 w-7 rounded-full ${i < currentItem.level ? 'bg-indigo-500' : 'bg-gray-200'}`} />
+                ))}
+                <span className="ml-2 text-xs text-gray-500">Nivel {currentItem.level} de {currentItem.exercise.maxLevel}</span>
+              </div>
+              <p className="mb-5 text-sm text-gray-500">Ejercicio {currentIndex + 1} de {session.items.length}</p>
+              <button
+                onClick={beginExercise}
+                className="rounded-xl bg-indigo-600 px-10 py-3 text-base font-semibold text-white shadow-md shadow-indigo-200 transition-all hover:bg-indigo-700 hover:shadow-lg active:scale-95"
+              >
+                Empezar ▶
+              </button>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Exercise player */}
       {started && phase === 'playing' && currentItem && (
@@ -425,41 +448,61 @@ export function SessionPlayerPage() {
       )}
 
       {/* Feedback */}
-      {phase === 'feedback' && lastResult && currentItem && (
-        <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-            <span className="text-2xl">✓</span>
-          </div>
-          <h2 className="text-xl font-bold text-gray-900">Ejercicio completado</h2>
-          <p className="mt-1 text-gray-500">{currentItem.exercise.title}</p>
+      {phase === 'feedback' && lastResult && currentItem && (() => {
+        const total = lastResult.hits + lastResult.errors;
+        const accuracy = total > 0 ? Math.round((lastResult.hits / total) * 100) : 100;
+        const isGood = accuracy >= 75;
+        const accuracyColor = accuracy >= 80 ? 'bg-green-500' : accuracy >= 60 ? 'bg-amber-500' : 'bg-red-500';
+        return (
+          <div className="animate-slide-up rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm">
+            <div className={`mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-full ${isGood ? 'bg-green-100' : 'bg-amber-100'}`}>
+              <span className="animate-pop-in text-4xl">{isGood ? '✅' : '⚠️'}</span>
+            </div>
+            <h2 className="text-xl font-bold text-gray-900">{isGood ? '¡Muy bien!' : '¡Completado!'}</h2>
+            <p className="mt-1 text-sm text-gray-500">{currentItem.exercise.title}</p>
 
-          <div className="mt-6 flex justify-center gap-8">
-            <div>
-              <p className="text-3xl font-bold text-green-600">{lastResult.hits}</p>
-              <p className="text-xs text-gray-500">Aciertos</p>
+            <div className="mt-6 flex justify-center gap-4">
+              <div className="rounded-xl bg-green-50 px-5 py-3">
+                <p className="text-3xl font-bold text-green-600">{lastResult.hits}</p>
+                <p className="mt-0.5 text-xs font-medium text-green-700">Aciertos</p>
+              </div>
+              {lastResult.errors > 0 && (
+                <div className="rounded-xl bg-red-50 px-5 py-3">
+                  <p className="text-3xl font-bold text-red-500">{lastResult.errors}</p>
+                  <p className="mt-0.5 text-xs font-medium text-red-600">Errores</p>
+                </div>
+              )}
+              {lastResult.reactionTimeMs !== null && lastResult.reactionTimeMs > 0 && (
+                <div className="rounded-xl bg-indigo-50 px-5 py-3">
+                  <p className="text-3xl font-bold text-indigo-600">
+                    {(lastResult.reactionTimeMs / 1000).toFixed(1)}s
+                  </p>
+                  <p className="mt-0.5 text-xs font-medium text-indigo-700">Tiempo medio</p>
+                </div>
+              )}
             </div>
-            <div>
-              <p className="text-3xl font-bold text-red-500">{lastResult.errors}</p>
-              <p className="text-xs text-gray-500">Errores</p>
-            </div>
-            {lastResult.reactionTimeMs !== null && (
-              <div>
-                <p className="text-3xl font-bold text-indigo-600">
-                  {(lastResult.reactionTimeMs / 1000).toFixed(1)}s
-                </p>
-                <p className="text-xs text-gray-500">Tiempo</p>
+
+            {total > 0 && (
+              <div className="mt-5">
+                <div className="mb-1 flex justify-between text-xs text-gray-500">
+                  <span>Precisión</span>
+                  <span className="font-semibold">{accuracy}%</span>
+                </div>
+                <div className="h-3 overflow-hidden rounded-full bg-gray-100">
+                  <div className={`h-3 rounded-full transition-all duration-700 ${accuracyColor}`} style={{ width: `${accuracy}%` }} />
+                </div>
               </div>
             )}
-          </div>
 
-          <button
-            onClick={nextExercise}
-            className="mt-8 rounded-lg bg-indigo-600 px-8 py-3 font-medium text-white hover:bg-indigo-700"
-          >
-            {currentIndex + 1 >= session.items.length ? 'Ver resumen' : 'Siguiente ejercicio →'}
-          </button>
-        </div>
-      )}
+            <button
+              onClick={nextExercise}
+              className="mt-7 rounded-xl bg-indigo-600 px-8 py-3 font-semibold text-white shadow-md shadow-indigo-200 transition-all hover:bg-indigo-700 active:scale-95"
+            >
+              {currentIndex + 1 >= session.items.length ? '🏆 Ver resumen' : 'Siguiente ejercicio →'}
+            </button>
+          </div>
+        );
+      })()}
     </div>
   );
 }

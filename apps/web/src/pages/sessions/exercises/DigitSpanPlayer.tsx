@@ -13,13 +13,17 @@ export function DigitSpanPlayer({ level, seed, onComplete }: Props) {
   const [{ stimuli }] = useState(() => digitSpan.generate(level, seed));
   const [phase, setPhase] = useState<Phase>('show');
   const [showIdx, setShowIdx] = useState(0);
+  const [digitKey, setDigitKey] = useState(0);
   const [response, setResponse] = useState<number[]>([]);
 
-  // Show digits one by one
   useEffect(() => {
     if (phase !== 'show') return;
-    if (showIdx >= stimuli.sequence.length) { setPhase('recall'); return; }
-    const t = setTimeout(() => setShowIdx((i) => i + 1), 1000);
+    if (showIdx >= stimuli.sequence.length) {
+      setPhase('recall');
+      return;
+    }
+    setDigitKey((k) => k + 1);
+    const t = setTimeout(() => setShowIdx((i) => i + 1), 950);
     return () => clearTimeout(t);
   }, [phase, showIdx, stimuli.sequence.length]);
 
@@ -36,25 +40,58 @@ export function DigitSpanPlayer({ level, seed, onComplete }: Props) {
     if (next.length >= stimuli.sequence.length) setPhase('done');
   };
 
+  const del = () => {
+    if (phase !== 'recall' || response.length === 0) return;
+    setResponse((r) => r.slice(0, -1));
+  };
+
   const currentDigit = stimuli.sequence[showIdx - 1];
-  const label = stimuli.direction === 'backward' ? 'al revés' : 'en orden';
+  const label = stimuli.direction === 'backward' ? 'al revés (último → primero)' : 'en el mismo orden';
 
   return (
-    <div className="select-none text-center">
-      <p className="mb-4 text-sm text-gray-600">
+    <div className="select-none space-y-4 text-center">
+      {/* Phase label */}
+      <p className="text-sm font-medium text-gray-700">
         {phase === 'show' ? 'Memoriza los dígitos' : `Introduce los dígitos ${label}`}
       </p>
 
-      {/* Digit display */}
-      <div className="mb-6 flex h-28 items-center justify-center rounded-2xl border-2 border-gray-200 bg-gray-50">
-        {phase === 'show' && showIdx > 0 && currentDigit !== undefined ? (
-          <span className="text-7xl font-bold text-indigo-600">{currentDigit}</span>
-        ) : phase === 'show' ? (
-          <span className="text-xl text-gray-400">Preparado...</span>
+      {/* Sequence position dots */}
+      <div className="flex justify-center gap-1.5">
+        {stimuli.sequence.map((_, i) => (
+          <div
+            key={i}
+            className={`h-2 w-6 rounded-full transition-all ${
+              phase === 'show'
+                ? i < showIdx ? 'bg-indigo-500' : i === showIdx ? 'bg-indigo-300 animate-pulse' : 'bg-gray-200'
+                : i < response.length ? 'bg-green-500' : 'bg-gray-200'
+            }`}
+          />
+        ))}
+      </div>
+
+      {/* Main display */}
+      <div className="flex h-36 items-center justify-center rounded-2xl border-2 border-gray-200 bg-gray-50">
+        {phase === 'show' ? (
+          showIdx === 0 ? (
+            <span className="text-lg text-gray-400">Preparado…</span>
+          ) : currentDigit !== undefined ? (
+            <span key={digitKey} className="animate-pop-in text-8xl font-extrabold text-indigo-600">
+              {currentDigit}
+            </span>
+          ) : null
         ) : (
-          <div className="flex gap-2">
+          <div className="flex gap-2 px-4">
             {Array.from({ length: stimuli.sequence.length }, (_, i) => (
-              <div key={i} className={`h-10 w-10 rounded-lg border-2 ${i < response.length ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200'} flex items-center justify-center text-xl font-bold text-indigo-700`}>
+              <div
+                key={i}
+                className={`flex h-12 w-12 items-center justify-center rounded-xl border-2 text-2xl font-bold transition-all ${
+                  i < response.length
+                    ? 'border-indigo-400 bg-indigo-50 text-indigo-700 shadow-sm'
+                    : i === response.length
+                    ? 'border-indigo-300 bg-white text-transparent animate-pulse'
+                    : 'border-gray-200 bg-white text-transparent'
+                }`}
+              >
                 {response[i] ?? ''}
               </div>
             ))}
@@ -62,17 +99,31 @@ export function DigitSpanPlayer({ level, seed, onComplete }: Props) {
         )}
       </div>
 
+      {/* Numpad */}
       {phase === 'recall' && (
-        <div className="grid grid-cols-5 gap-2">
-          {[1,2,3,4,5,6,7,8,9,0].map((d) => (
+        <div className="grid grid-cols-3 gap-2.5 px-4">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
             <button
               key={d}
               onClick={() => press(d)}
-              className="h-14 rounded-xl bg-indigo-50 text-2xl font-bold text-indigo-700 hover:bg-indigo-100 active:bg-indigo-200"
+              className="h-14 rounded-xl bg-indigo-50 text-2xl font-bold text-indigo-700 shadow-sm transition-all hover:bg-indigo-100 active:scale-95 active:bg-indigo-200"
             >
               {d}
             </button>
           ))}
+          <button
+            onClick={del}
+            className="h-14 rounded-xl bg-gray-100 text-sm font-semibold text-gray-600 shadow-sm transition-all hover:bg-gray-200 active:scale-95"
+          >
+            ⌫
+          </button>
+          <button
+            onClick={() => press(0)}
+            className="h-14 rounded-xl bg-indigo-50 text-2xl font-bold text-indigo-700 shadow-sm transition-all hover:bg-indigo-100 active:scale-95 active:bg-indigo-200"
+          >
+            0
+          </button>
+          <div className="h-14" />
         </div>
       )}
     </div>
