@@ -855,13 +855,13 @@ export interface EvaluationResult {
 
 ### FASE 3 — Métricas & Contenido (Semanas 21–26)
 
-- [ ] **3.1** Ajuste automático de dificultad — Algoritmo basado en % de aciertos en últimas N sesiones.
-- [ ] **3.2** Dashboard de métricas avanzado — Gráficos por área cognitiva, tendencias, comparativas.
-- [ ] **3.3** Informes en PDF — Exportación de progreso con gráficos y tabla de resultados.
-- [ ] **3.4** Fichas imprimibles — Versiones en papel de los ejercicios digitales.
-- [ ] **3.5** Plantillas personalizables — Logo del centro, nombre del paciente, fecha.
-- [ ] **3.6** Biblioteca con búsqueda y filtros — Por área, nivel, tipo y duración.
-- [ ] **3.7** Programas por patología — Ictus, Alzheimer, TDAH, daño cerebral, Parkinson, esclerosis múltiple.
+- [x] **3.1** Ajuste automático de dificultad — Algoritmo basado en % de aciertos en últimas N sesiones.
+- [x] **3.2** Dashboard de métricas avanzado — Gráficos por área cognitiva, tendencias, comparativas.
+- [x] **3.3** Informes en PDF — Exportación de progreso con gráficos y tabla de resultados.
+- [x] **3.4** Fichas imprimibles — Versiones en papel de los ejercicios digitales.
+- [x] **3.5** Plantillas personalizables — Logo del centro, nombre del paciente, fecha.
+- [x] **3.6** Biblioteca con búsqueda y filtros — Por área, nivel, tipo y duración.
+- [x] **3.7** Programas por patología — Ictus, Alzheimer, TDAH, daño cerebral, Parkinson, esclerosis múltiple.
 
 ---
 
