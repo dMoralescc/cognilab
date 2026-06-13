@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { suggestLevel } from '@cognilab/shared';
+import { suggestLevel, COGNITIVE_PROGRAMS } from '@cognilab/shared';
 import { useExercises, useCreateSession, type Exercise } from '../../hooks/useSessions';
 import type { PatientDetail } from '../../hooks/usePatients';
 
@@ -28,8 +28,11 @@ interface Props {
   onCreated: (sessionId: string) => void;
 }
 
+type BrowserTab = 'ejercicios' | 'programas';
+
 export function CreateSessionModal({ patientId, patientHistory = [], onClose, onCreated }: Props) {
   const navigate = useNavigate();
+  const [browserTab, setBrowserTab] = useState<BrowserTab>('ejercicios');
   const [selectedArea, setSelectedArea] = useState('');
   const [selected, setSelected] = useState<SelectedItem[]>([]);
   const [dueDate, setDueDate] = useState('');
@@ -61,6 +64,18 @@ export function CreateSessionModal({ patientId, patientHistory = [], onClose, on
   const addExercise = (ex: Exercise) => {
     if (selected.some((s) => s.exercise.id === ex.id)) return;
     setSelected((prev) => [...prev, { exercise: ex, level: getAutoLevel(ex) }]);
+  };
+
+  const loadProgram = (slugs: Array<{ slug: string; level: number }>, allExercises: Exercise[]) => {
+    const items: SelectedItem[] = [];
+    for (const { slug, level } of slugs) {
+      const ex = allExercises.find((e) => e.slug === slug);
+      if (!ex || selected.some((s) => s.exercise.id === ex.id)) continue;
+      const past = historyBySlug.get(ex.slug) ?? [];
+      const suggested = past.length > 0 ? suggestLevel(past, ex.minLevel, ex.maxLevel) : level;
+      items.push({ exercise: ex, level: suggested });
+    }
+    setSelected((prev) => [...prev, ...items]);
   };
 
   const removeExercise = (exerciseId: string) => {
@@ -107,38 +122,87 @@ export function CreateSessionModal({ patientId, patientHistory = [], onClose, on
         </div>
 
         <div className="flex flex-1 gap-0 overflow-hidden">
-          {/* Exercise browser */}
+          {/* Left panel: exercise browser + programs */}
           <div className="flex w-1/2 flex-col border-r border-gray-100">
-            <div className="border-b border-gray-100 px-4 py-3">
-              <p className="mb-2 text-xs font-medium uppercase text-gray-500">Área cognitiva</p>
-              <div className="flex flex-wrap gap-1">
+            {/* Tab switcher */}
+            <div className="flex border-b border-gray-100">
+              {(['ejercicios', 'programas'] as BrowserTab[]).map((tab) => (
                 <button
-                  onClick={() => setSelectedArea('')}
-                  className={`rounded-full px-2 py-0.5 text-xs ${!selectedArea ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                  key={tab}
+                  onClick={() => setBrowserTab(tab)}
+                  className={`flex-1 py-2.5 text-xs font-medium capitalize transition-colors ${
+                    browserTab === tab
+                      ? 'border-b-2 border-indigo-600 text-indigo-600'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
                 >
-                  Todas
+                  {tab === 'ejercicios' ? '📋 Ejercicios' : '🏥 Por patología'}
                 </button>
-                {AREAS.map((a) => (
-                  <button
-                    key={a}
-                    onClick={() => setSelectedArea(a)}
-                    className={`rounded-full px-2 py-0.5 text-xs ${selectedArea === a ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                  >
-                    {AREA_LABELS[a]}
-                  </button>
-                ))}
-              </div>
+              ))}
             </div>
 
-            <div className="flex-1 overflow-y-auto">
-              {loadingExercises ? (
-                <div className="flex h-32 items-center justify-center">
-                  <div className="h-6 w-6 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+            {browserTab === 'programas' ? (
+              <div className="flex-1 overflow-y-auto p-3 space-y-3">
+                {COGNITIVE_PROGRAMS.map((prog) => {
+                  const alreadyLoaded = prog.exercises.every((pe) =>
+                    selected.some((s) => s.exercise.slug === pe.slug)
+                  );
+                  return (
+                    <div key={prog.id} className="rounded-xl border border-gray-200 bg-white p-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-start gap-2">
+                          <span className="text-xl">{prog.icon}</span>
+                          <div>
+                            <p className="text-xs font-semibold text-gray-800">{prog.name}</p>
+                            <p className="text-xs text-indigo-600 font-medium">{prog.pathology}</p>
+                            <p className="mt-1 text-xs text-gray-500 line-clamp-2">{prog.description}</p>
+                            <p className="mt-1 text-xs text-gray-400">{prog.exercises.length} ejercicios</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => loadProgram(prog.exercises, exercises)}
+                          disabled={alreadyLoaded}
+                          className="shrink-0 rounded-lg bg-indigo-600 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          {alreadyLoaded ? '✓ Cargado' : 'Cargar'}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <>
+                <div className="border-b border-gray-100 px-4 py-3">
+                  <p className="mb-2 text-xs font-medium uppercase text-gray-500">Área cognitiva</p>
+                  <div className="flex flex-wrap gap-1">
+                    <button
+                      onClick={() => setSelectedArea('')}
+                      className={`rounded-full px-2 py-0.5 text-xs ${!selectedArea ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                    >
+                      Todas
+                    </button>
+                    {AREAS.map((a) => (
+                      <button
+                        key={a}
+                        onClick={() => setSelectedArea(a)}
+                        className={`rounded-full px-2 py-0.5 text-xs ${selectedArea === a ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                      >
+                        {AREA_LABELS[a]}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              ) : exercises.length === 0 ? (
-                <p className="p-6 text-center text-sm text-gray-400">No hay ejercicios disponibles.</p>
-              ) : (
-                <ul className="divide-y divide-gray-50">
+
+                <div className="flex-1 overflow-y-auto">
+                  {loadingExercises ? (
+                    <div className="flex h-32 items-center justify-center">
+                      <div className="h-6 w-6 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+                    </div>
+                  ) : exercises.length === 0 ? (
+                    <p className="p-6 text-center text-sm text-gray-400">No hay ejercicios disponibles.</p>
+                  ) : (
+                    <ul className="divide-y divide-gray-50">
                   {exercises.map((ex) => {
                     const isAdded = selected.some((s) => s.exercise.id === ex.id);
                     const suggested = getAutoLevel(ex);
@@ -173,6 +237,8 @@ export function CreateSessionModal({ patientId, patientHistory = [], onClose, on
                 </ul>
               )}
             </div>
+              </>
+            )}
           </div>
 
           {/* Selected items + config */}

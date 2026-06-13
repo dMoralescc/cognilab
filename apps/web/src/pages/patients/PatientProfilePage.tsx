@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
@@ -7,6 +7,7 @@ import {
 import { usePatient } from '../../hooks/usePatients';
 import { PatientFormModal } from './PatientFormModal';
 import { CreateSessionModal } from '../sessions/CreateSessionModal';
+import { exportPatientPdf } from '../../lib/exportPdf';
 
 const AREA_META: Record<string, { label: string; color: string; icon: string }> = {
   ATTENTION:          { label: 'Atención',         color: '#6366f1', icon: '👁' },
@@ -48,6 +49,7 @@ type Tab = 'resumen' | 'areas' | 'historial';
 export function PatientProfilePage() {
   const { id = '' } = useParams();
   const { data: patient, isLoading } = usePatient(id);
+  const navigate = useNavigate();
   const [editing, setEditing] = useState(false);
   const [creatingSession, setCreatingSession] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('resumen');
@@ -155,6 +157,41 @@ export function PatientProfilePage() {
             className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
           >
             + Nueva sesión
+          </button>
+          <button
+            onClick={() => navigate(`/pacientes/${id}/informe`)}
+            className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
+            title="Vista de impresión / PDF"
+          >
+            🖨️ Imprimir
+          </button>
+          <button
+            onClick={() => {
+              const sessions = completedSessions.map((s) => ({
+                createdAt: s.createdAt,
+                exercises: s.items
+                  .filter((it) => it.result)
+                  .map((it) => ({
+                    title: it.exercise.title,
+                    cognitiveArea: it.exercise.cognitiveArea,
+                    level: it.level,
+                    hits: it.result!.hits,
+                    errors: it.result!.errors,
+                    reactionTimeMs: it.result!.reactionTimeMs,
+                    completedAt: it.result!.completedAt,
+                  })),
+              }));
+              exportPatientPdf({
+                patientName: patient.name,
+                diagnosis: patient.diagnosis,
+                centerName: '',
+                sessions,
+              });
+            }}
+            className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
+            title="Exportar informe en PDF"
+          >
+            📄 PDF
           </button>
           <button
             onClick={() => setEditing(true)}

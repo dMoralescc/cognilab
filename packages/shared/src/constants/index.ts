@@ -1,3 +1,5 @@
+export { COGNITIVE_PROGRAMS, type CognitiveProgramTemplate, type ProgramExercise } from './programs';
+
 export const COGNITIVE_AREAS = [
   'ATTENTION',
   'MEMORY',
