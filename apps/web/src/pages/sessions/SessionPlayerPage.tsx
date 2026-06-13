@@ -114,8 +114,29 @@ export function SessionPlayerPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [started, setStarted] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
   const { elapsed, reset: resetTimer } = useTimer(phase === 'playing');
+
+  // On load: jump to first pending exercise; auto-resume IN_PROGRESS sessions
+  useEffect(() => {
+    if (!session || initialized) return;
+    setInitialized(true);
+
+    const firstPending = session.items.findIndex((it) => !it.result);
+    if (firstPending === -1) {
+      // all exercises already have results → go to summary
+      navigate(`/sesiones/${session.id}/resumen`);
+      return;
+    }
+
+    setCurrentIndex(firstPending);
+
+    if (session.status === 'IN_PROGRESS') {
+      setStarted(true);
+      setPhase('intro');
+    }
+  }, [session, initialized, navigate]);
 
   const currentItem = session?.items[currentIndex];
 
@@ -200,44 +221,76 @@ export function SessionPlayerPage() {
         <div className="mb-1 flex items-center justify-between text-sm text-gray-500">
           <span>
             Ejercicio {Math.min(currentIndex + 1, session.items.length)} de {session.items.length}
+            {session.items.some((it) => it.result) && (
+              <span className="ml-2 text-xs text-green-600 font-medium">
+                · {session.items.filter((it) => it.result).length} completado{session.items.filter((it) => it.result).length !== 1 ? 's' : ''}
+              </span>
+            )}
           </span>
           {phase === 'playing' && (
             <span className="font-mono text-indigo-600">{formatTime(elapsed)}</span>
           )}
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-gray-100">
-          <div
-            className="h-2 rounded-full bg-indigo-600 transition-all"
-            style={{ width: `${((currentIndex) / session.items.length) * 100}%` }}
-          />
+        <div className="flex h-2 gap-0.5 overflow-hidden rounded-full">
+          {session.items.map((it, i) => (
+            <div
+              key={it.id}
+              className={`flex-1 rounded-full transition-all ${
+                it.result
+                  ? 'bg-green-500'
+                  : i === currentIndex
+                  ? 'bg-indigo-500'
+                  : 'bg-gray-200'
+              }`}
+            />
+          ))}
         </div>
       </div>
 
       {/* Start gate */}
-      {!started && (
-        <div className="animate-slide-up overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-          <div className="bg-gradient-to-br from-indigo-50 to-violet-100 px-8 pb-8 pt-10 text-center">
-            <div className="mb-3 text-5xl">🧩</div>
-            <h1 className="text-3xl font-bold text-gray-900">Sesión lista</h1>
-            <p className="mt-2 text-gray-600">
-              {session.items.length} ejercicio{session.items.length !== 1 ? 's' : ''} programado{session.items.length !== 1 ? 's' : ''}
-            </p>
-            <div className="mt-4 flex justify-center gap-1.5">
-              {session.items.map((_, i) => (
-                <div key={i} className="h-2 w-6 rounded-full bg-indigo-300" />
-              ))}
+      {!started && (() => {
+        const completedCount = session.items.filter((it) => it.result).length;
+        const pendingCount = session.items.length - completedCount;
+        const isResume = session.status === 'IN_PROGRESS' || completedCount > 0;
+        return (
+          <div className="animate-slide-up overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <div className={`bg-gradient-to-br ${isResume ? 'from-amber-50 to-orange-100' : 'from-indigo-50 to-violet-100'} px-8 pb-8 pt-10 text-center`}>
+              <div className="mb-3 text-5xl">{isResume ? '▶️' : '🧩'}</div>
+              <h1 className="text-3xl font-bold text-gray-900">
+                {isResume ? 'Reanudar sesión' : 'Sesión lista'}
+              </h1>
+              <p className="mt-2 text-gray-600">
+                {isResume
+                  ? `${completedCount} de ${session.items.length} ejercicios completados · quedan ${pendingCount}`
+                  : `${session.items.length} ejercicio${session.items.length !== 1 ? 's' : ''} programado${session.items.length !== 1 ? 's' : ''}`
+                }
+              </p>
+              <div className="mt-4 flex justify-center gap-1.5">
+                {session.items.map((it, i) => (
+                  <div
+                    key={i}
+                    className={`h-2 w-6 rounded-full ${
+                      it.result ? 'bg-green-400' : i === currentIndex ? 'bg-amber-400' : 'bg-gray-300'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="px-8 py-6 text-center">
+              <button
+                onClick={handleStart}
+                className={`rounded-xl px-10 py-3 text-base font-semibold text-white shadow-md transition-all hover:shadow-lg active:scale-95 ${
+                  isResume
+                    ? 'bg-amber-500 shadow-amber-200 hover:bg-amber-600'
+                    : 'bg-indigo-600 shadow-indigo-200 hover:bg-indigo-700'
+                }`}
+              >
+                {isResume ? 'Reanudar ▶' : 'Comenzar sesión ▶'}
+              </button>
             </div>
           </div>
-          <div className="px-8 py-6 text-center">
-            <button
-              onClick={handleStart}
-              className="rounded-xl bg-indigo-600 px-10 py-3 text-base font-semibold text-white shadow-md shadow-indigo-200 transition-all hover:bg-indigo-700 hover:shadow-lg active:scale-95"
-            >
-              Comenzar sesión ▶
-            </button>
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Exercise intro */}
       {started && phase === 'intro' && currentItem && (() => {
