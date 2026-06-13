@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useExercises, type Exercise } from '../hooks/useSessions';
+import { QuickPlayModal } from './exercises/QuickPlayModal';
 
 const AREA_META: Record<string, { label: string; color: string; bg: string; icon: string }> = {
   ATTENTION:           { label: 'Atención',         color: '#6366f1', bg: '#eef2ff', icon: '👁' },
@@ -13,12 +14,12 @@ const AREA_META: Record<string, { label: string; color: string; bg: string; icon
 
 const AREAS = Object.keys(AREA_META);
 
-function ExerciseCard({ ex }: { ex: Exercise }) {
+function ExerciseCard({ ex, onPlay }: { ex: Exercise; onPlay: (ex: Exercise) => void }) {
   const meta = AREA_META[ex.cognitiveArea];
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 transition-shadow hover:shadow-sm">
+    <div className="group rounded-xl border border-gray-200 bg-white p-4 transition-all hover:shadow-md hover:border-indigo-200">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1.5">
@@ -40,7 +41,7 @@ function ExerciseCard({ ex }: { ex: Exercise }) {
             </button>
           )}
         </div>
-        <div className="shrink-0 text-right">
+        <div className="shrink-0 text-right flex flex-col items-end gap-2">
           <div className="flex gap-0.5 justify-end">
             {Array.from({ length: ex.maxLevel }, (_, i) => (
               <div
@@ -51,6 +52,12 @@ function ExerciseCard({ ex }: { ex: Exercise }) {
             ))}
           </div>
           <p className="mt-1 text-xs text-gray-400">Nv. {ex.minLevel}–{ex.maxLevel}</p>
+          <button
+            onClick={() => onPlay(ex)}
+            className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm shadow-indigo-200 transition-all hover:bg-indigo-700 active:scale-95 opacity-0 group-hover:opacity-100"
+          >
+            ▶ Jugar
+          </button>
         </div>
       </div>
     </div>
@@ -61,6 +68,7 @@ export function ExercisesPage() {
   const [query, setQuery] = useState('');
   const [filterArea, setFilterArea] = useState<string>('');
   const [filterLevel, setFilterLevel] = useState<number | null>(null);
+  const [playingExercise, setPlayingExercise] = useState<Exercise | null>(null);
 
   const { data: exercises = [], isLoading } = useExercises();
 
@@ -185,7 +193,7 @@ export function ExercisesPage() {
             <span className="text-sm text-gray-400">— {filtered.length} ejercicios</span>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            {filtered.map((ex) => <ExerciseCard key={ex.id} ex={ex} />)}
+            {filtered.map((ex) => <ExerciseCard key={ex.id} ex={ex} onPlay={setPlayingExercise} />)}
           </div>
         </div>
       ) : (
@@ -211,12 +219,19 @@ export function ExercisesPage() {
                   </button>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  {list.map((ex) => <ExerciseCard key={ex.id} ex={ex} />)}
+                  {list.map((ex) => <ExerciseCard key={ex.id} ex={ex} onPlay={setPlayingExercise} />)}
                 </div>
               </div>
             );
           })}
         </div>
+      )}
+
+      {playingExercise && (
+        <QuickPlayModal
+          exercise={playingExercise}
+          onClose={() => setPlayingExercise(null)}
+        />
       )}
     </div>
   );
