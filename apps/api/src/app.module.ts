@@ -7,6 +7,7 @@ import { ResultsModule } from './modules/results/results.module';
 import { SessionsModule } from './modules/sessions/sessions.module';
 import { ExercisesModule } from './modules/exercises/exercises.module';
 import { PatientPortalModule } from './modules/patient-portal/patient-portal.module';
+import { FavoritesModule } from './modules/favorites/favorites.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { PatientPortalModule } from './modules/patient-portal/patient-portal.mod
     ExercisesModule,
     ResultsModule,
     PatientPortalModule,
+    FavoritesModule,
   ],
 })
 export class AppModule {}

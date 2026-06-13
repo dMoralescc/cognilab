@@ -9,16 +9,17 @@ datasource db {
 }
 
 model Professional {
-  id                         String    @id @default(cuid())
-  email                      String    @unique
+  id                         String     @id @default(cuid())
+  email                      String     @unique
   name                       String
   password                   String
-  emailVerified              Boolean   @default(false)
-  verificationToken          String?   @unique
+  emailVerified              Boolean    @default(false)
+  verificationToken          String?    @unique
   verificationTokenExpiresAt DateTime?
   refreshToken               String?
   patients                   Patient[]
-  createdAt                  DateTime  @default(now())
+  favorites                  Favorite[]
+  createdAt                  DateTime   @default(now())
 }
 
 model Patient {
@@ -47,6 +48,18 @@ model Exercise {
   maxLevel      Int           @default(5)
   createdAt     DateTime      @default(now())
   sessionItems  SessionItem[]
+  favorites     Favorite[]
+}
+
+model Favorite {
+  id             String       @id @default(cuid())
+  professionalId String
+  professional   Professional @relation(fields: [professionalId], references: [id])
+  exerciseId     String
+  exercise       Exercise     @relation(fields: [exerciseId], references: [id])
+  createdAt      DateTime     @default(now())
+
+  @@unique([professionalId, exerciseId])
 }
 
 model Session {
