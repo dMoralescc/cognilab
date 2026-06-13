@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { cancellation } from '@cognilab/shared';
+import { ShapeIcon } from './ShapeIcon';
 
 interface Props {
   level: number;
@@ -8,22 +9,14 @@ interface Props {
   onComplete: (result: { hits: number; errors: number; reactionTimeMs: number | null; rawData: Record<string, unknown> }) => void;
 }
 
-const SYMBOL_COLOR: Record<string, string> = {
-  '★': 'text-indigo-600',
-  '✦': 'text-violet-500',
-  '♦': 'text-slate-500',
-  '△': 'text-slate-400',
-  '□': 'text-gray-400',
-  '○': 'text-gray-300',
-};
-
 export function CancellationPlayer({ level, seed, elapsedMs, onComplete }: Props) {
   const [content] = useState(() => cancellation.generate(level, seed));
   const [tapped, setTapped] = useState<Set<number>>(new Set());
   const tapTimesRef = useRef<Map<number, number>>(new Map());
 
   const { stimuli } = content;
-  const cellSize = stimuli.gridSize <= 7 ? 54 : stimuli.gridSize <= 9 ? 44 : 36;
+  const cellSize = stimuli.gridSize <= 7 ? 56 : stimuli.gridSize <= 9 ? 46 : 38;
+  const iconSize = Math.round(cellSize * 0.55);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => { if (e.key === 'Enter') handleSubmit(); };
@@ -57,15 +50,17 @@ export function CancellationPlayer({ level, seed, elapsedMs, onComplete }: Props
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-gray-700">
-          Pulsa todos los <span className="text-xl font-bold text-indigo-600">★</span> que veas
-        </p>
-        <div className="flex items-center gap-2">
-          <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
-            {tapped.size} seleccionados
+      <div className="flex items-center justify-between gap-4 rounded-2xl bg-amber-50 px-5 py-3">
+        <p className="flex items-center gap-2 text-sm font-semibold text-amber-900">
+          Pulsa todas las
+          <span className="inline-flex items-center justify-center rounded-xl bg-white p-1.5 shadow-sm">
+            <ShapeIcon shape={stimuli.targetSymbol} size={22} color="#374151" strokeWidth={2.5} />
           </span>
-        </div>
+          que veas
+        </p>
+        <span className="shrink-0 rounded-full bg-amber-200 px-3 py-1 text-xs font-bold text-amber-800">
+          {tapped.size} marcadas
+        </span>
       </div>
 
       {/* Grid */}
@@ -76,21 +71,26 @@ export function CancellationPlayer({ level, seed, elapsedMs, onComplete }: Props
         >
           {stimuli.symbols.map((sym, idx) => {
             const isTapped = tapped.has(idx);
-            const isTarget = sym === '★';
+            const isTarget = sym === stimuli.targetSymbol;
             return (
               <button
                 key={idx}
                 onClick={() => tap(idx)}
-                className={`flex items-center justify-center rounded-lg border-2 text-lg font-bold transition-all select-none active:scale-90 ${
+                className={`flex items-center justify-center rounded-xl border-2 transition-all select-none active:scale-90 ${
                   isTapped
                     ? isTarget
-                      ? 'border-indigo-500 bg-indigo-100 shadow-sm shadow-indigo-200 scale-105'
-                      : 'border-red-400 bg-red-50 scale-105'
-                    : 'border-gray-200 bg-white hover:border-indigo-300 hover:bg-indigo-50'
-                } ${SYMBOL_COLOR[sym] ?? 'text-gray-600'}`}
-                style={{ width: cellSize, height: cellSize, fontSize: cellSize * 0.45 }}
+                      ? 'border-emerald-400 bg-emerald-100 shadow-md scale-110'
+                      : 'border-red-400 bg-red-100 scale-110'
+                    : 'border-gray-200 bg-white hover:border-indigo-300 hover:bg-indigo-50 hover:scale-105'
+                }`}
+                style={{ width: cellSize, height: cellSize }}
               >
-                {sym}
+                <ShapeIcon
+                  shape={sym}
+                  size={iconSize}
+                  color={isTapped ? (isTarget ? '#059669' : '#dc2626') : '#374151'}
+                  strokeWidth={2.5}
+                />
               </button>
             );
           })}
@@ -102,7 +102,7 @@ export function CancellationPlayer({ level, seed, elapsedMs, onComplete }: Props
         <p className="text-xs text-gray-400">Pulsa Enter o el botón para finalizar</p>
         <button
           onClick={handleSubmit}
-          className="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-md shadow-indigo-200 transition-all hover:bg-indigo-700 active:scale-95"
+          className="rounded-2xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-200 transition-all hover:bg-indigo-700 active:scale-95"
         >
           Finalizar ↵
         </button>

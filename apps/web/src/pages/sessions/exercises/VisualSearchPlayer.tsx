@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { visualSearch } from '@cognilab/shared';
+import { ShapeIcon } from './ShapeIcon';
 
 interface Props {
   level: number;
@@ -8,7 +9,8 @@ interface Props {
   onComplete: (r: { hits: number; errors: number; reactionTimeMs: number | null; rawData: Record<string, unknown> }) => void;
 }
 
-const SYMBOL_SIZE = 36;
+const ITEM_SIZE = 48;
+const ICON_SIZE = 28;
 
 export function VisualSearchPlayer({ level, seed, elapsedMs, onComplete }: Props) {
   const [{ stimuli }] = useState(() => visualSearch.generate(level, seed));
@@ -17,37 +19,31 @@ export function VisualSearchPlayer({ level, seed, elapsedMs, onComplete }: Props
 
   const handleClick = (id: number) => {
     if (confirmed) return;
-    setSelected(id);
+    setSelected((prev) => (prev === id ? null : id));
   };
 
   const handleConfirm = () => {
     if (confirmed) return;
     setConfirmed(true);
-    const response: visualSearch.VisualSearchResponse = {
-      selectedId: selected,
-      reactionTimeMs: elapsedMs,
-    };
-    const summary = visualSearch.summarize(stimuli, response);
-    onComplete({
-      hits: summary.hits,
-      errors: summary.errors,
-      reactionTimeMs: summary.reactionTimeMs,
-      rawData: summary.rawData,
-    });
+    const summary = visualSearch.summarize(stimuli, { selectedId: selected, reactionTimeMs: elapsedMs });
+    onComplete({ hits: summary.hits, errors: summary.errors, reactionTimeMs: summary.reactionTimeMs, rawData: summary.rawData });
   };
 
   return (
-    <div>
-      <p className="mb-3 text-sm text-gray-600">
-        Encuentra y pulsa el símbolo{' '}
-        <span className="mx-1 text-xl font-bold text-indigo-700">{stimuli.target}</span>
-        entre todos los demás.
-      </p>
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center gap-3 rounded-2xl bg-indigo-50 px-5 py-3">
+        <p className="text-sm font-semibold text-indigo-900">Encuentra y toca</p>
+        <span className="inline-flex items-center justify-center rounded-xl bg-white p-2 shadow-sm">
+          <ShapeIcon shape={stimuli.target} size={24} color="#374151" strokeWidth={2.5} />
+        </span>
+        <p className="text-sm font-semibold text-indigo-900">entre todos los demás</p>
+      </div>
 
       {/* Canvas */}
       <div
-        className="relative mx-auto overflow-hidden rounded-xl border-2 border-gray-200 bg-gray-50"
-        style={{ width: '100%', paddingBottom: '60%' }}
+        className="relative mx-auto overflow-hidden rounded-2xl border-2 border-gray-100 bg-gray-50"
+        style={{ width: '100%', paddingBottom: '62%' }}
       >
         {stimuli.items.map((item) => {
           const isSelected = selected === item.id;
@@ -60,29 +56,38 @@ export function VisualSearchPlayer({ level, seed, elapsedMs, onComplete }: Props
                 position: 'absolute',
                 left: `${item.x}%`,
                 top: `${item.y}%`,
-                width: SYMBOL_SIZE,
-                height: SYMBOL_SIZE,
+                width: ITEM_SIZE,
+                height: ITEM_SIZE,
                 transform: 'translate(-50%,-50%)',
               }}
-              className={`flex items-center justify-center rounded-lg text-xl font-bold transition-all select-none
+              className={`flex items-center justify-center rounded-2xl border-2 transition-all select-none
                 ${isSelected
-                  ? 'border-2 border-indigo-600 bg-indigo-100 text-indigo-700 scale-125'
-                  : 'border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:scale-110'}
+                  ? 'border-indigo-500 bg-indigo-100 scale-125 shadow-lg shadow-indigo-200'
+                  : 'border-gray-200 bg-white hover:border-indigo-300 hover:bg-indigo-50 hover:scale-110 active:scale-95'}
               `}
             >
-              {item.symbol}
+              <ShapeIcon
+                shape={item.symbol}
+                size={ICON_SIZE}
+                color={isSelected ? '#4338ca' : '#374151'}
+                strokeWidth={2.5}
+              />
             </button>
           );
         })}
       </div>
 
-      <div className="mt-4 flex justify-end">
+      {/* Footer */}
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-gray-400">
+          {selected === null ? 'Toca la figura correcta' : '¡Seleccionada! Confirma cuando estés seguro'}
+        </p>
         <button
           onClick={handleConfirm}
           disabled={selected === null || confirmed}
-          className="rounded-lg bg-indigo-600 px-6 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-40"
+          className="rounded-2xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-200 transition-all hover:bg-indigo-700 active:scale-95 disabled:opacity-40"
         >
-          Confirmar selección
+          Confirmar ✓
         </button>
       </div>
     </div>
