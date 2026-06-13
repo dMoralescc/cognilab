@@ -1,8 +1,29 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useSession, useStartSession } from '../../hooks/useSessions';
-import { api } from '../../lib/api';
-import { renderExercise, type ExerciseResult } from './exercises/renderExercise';
+import { useQuery } from '@tanstack/react-query';
+import { patientApi } from '../../lib/patientApi';
+import { renderExercise, type ExerciseResult } from '../sessions/exercises/renderExercise';
+
+interface SessionItem {
+  id: string;
+  level: number;
+  order: number;
+  exercise: {
+    slug: string;
+    title: string;
+    description: string;
+    cognitiveArea: string;
+    minLevel: number;
+    maxLevel: number;
+  };
+  result: { hits: number; errors: number } | null;
+}
+
+interface Session {
+  id: string;
+  status: string;
+  items: SessionItem[];
+}
 
 const AREA_CONFIG: Record<string, { label: string; icon: string; gradient: string; badge: string }> = {
   ATTENTION:           { label: 'Atención',         icon: '👁️',  gradient: 'from-blue-50 to-indigo-100',    badge: 'bg-blue-100 text-blue-700' },
@@ -33,12 +54,15 @@ function formatTime(s: number) {
 
 type Phase = 'intro' | 'playing' | 'feedback' | 'done';
 
-export function SessionPlayerPage() {
+export function PatientSessionPlayerPage() {
   const { id = '' } = useParams();
   const navigate = useNavigate();
 
-  const { data: session, isLoading } = useSession(id);
-  const startSession = useStartSession();
+  const { data: session, isLoading } = useQuery<Session>({
+    queryKey: ['patient-session', id],
+    queryFn: () => patientApi.get<Session>(`/patient/sessions/${id}`).then((r) => r.data),
+    enabled: !!id,
+  });
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>('intro');
@@ -56,7 +80,7 @@ export function SessionPlayerPage() {
 
     const firstPending = session.items.findIndex((it) => !it.result);
     if (firstPending === -1) {
-      navigate(`/sesiones/${session.id}/resumen`);
+      navigate('/paciente');
       return;
     }
 
@@ -70,10 +94,8 @@ export function SessionPlayerPage() {
 
   const currentItem = session?.items[currentIndex];
 
-  const handleStart = async () => {
-    if (!session || started) return;
+  const handleStart = () => {
     setStarted(true);
-    try { await startSession.mutateAsync(session.id); } catch { /* already in_progress */ }
     setPhase('intro');
   };
 
@@ -87,7 +109,7 @@ export function SessionPlayerPage() {
     setSubmitting(true);
     setError('');
     try {
-      await api.post('/results', {
+      await patientApi.post('/patient/results', {
         sessionItemId: currentItem.id,
         hits: result.hits,
         errors: result.errors,
@@ -106,7 +128,7 @@ export function SessionPlayerPage() {
   const nextExercise = () => {
     if (!session) return;
     if (currentIndex + 1 >= session.items.length) {
-      navigate(`/sesiones/${session.id}/resumen`);
+      navigate('/paciente');
     } else {
       setCurrentIndex((i) => i + 1);
       setLastResult(null);
@@ -127,19 +149,21 @@ export function SessionPlayerPage() {
   if (session.status === 'COMPLETED') {
     return (
       <div className="py-16 text-center">
-        <p className="text-lg font-semibold text-gray-700">Esta sesión ya está completada.</p>
+        <p className="text-5xl mb-4">🏆</p>
+        <p className="text-xl font-bold text-gray-800">Sesión completada</p>
+        <p className="mt-2 text-sm text-gray-500">¡Muy bien! Has terminado todos los ejercicios.</p>
         <button
-          onClick={() => navigate(`/sesiones/${session.id}/resumen`)}
-          className="mt-4 rounded-lg bg-indigo-600 px-5 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+          onClick={() => navigate('/paciente')}
+          className="mt-6 rounded-xl bg-indigo-600 px-8 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
         >
-          Ver resumen
+          Volver a mis sesiones
         </button>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="space-y-6">
       {/* Progress bar */}
       <div>
         <div className="mb-1 flex items-center justify-between text-sm text-gray-500">
@@ -174,24 +198,19 @@ export function SessionPlayerPage() {
           <div className="animate-slide-up overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
             <div className={`bg-gradient-to-br ${isResume ? 'from-amber-50 to-orange-100' : 'from-indigo-50 to-violet-100'} px-8 pb-8 pt-10 text-center`}>
               <div className="mb-3 text-5xl">{isResume ? '▶️' : '🧩'}</div>
-              <h1 className="text-3xl font-bold text-gray-900">{isResume ? 'Reanudar sesión' : 'Sesión lista'}</h1>
+              <h1 className="text-3xl font-bold text-gray-900">{isResume ? 'Continuar sesión' : 'Sesión lista'}</h1>
               <p className="mt-2 text-gray-600">
                 {isResume
                   ? `${completedCount} de ${session.items.length} ejercicios completados · quedan ${pendingCount}`
-                  : `${session.items.length} ejercicio${session.items.length !== 1 ? 's' : ''} programado${session.items.length !== 1 ? 's' : ''}`}
+                  : `${session.items.length} ejercicio${session.items.length !== 1 ? 's' : ''}`}
               </p>
-              <div className="mt-4 flex justify-center gap-1.5">
-                {session.items.map((it, i) => (
-                  <div key={i} className={`h-2 w-6 rounded-full ${it.result ? 'bg-green-400' : i === currentIndex ? 'bg-amber-400' : 'bg-gray-300'}`} />
-                ))}
-              </div>
             </div>
             <div className="px-8 py-6 text-center">
               <button
                 onClick={handleStart}
                 className={`rounded-xl px-10 py-3 text-base font-semibold text-white shadow-md transition-all hover:shadow-lg active:scale-95 ${isResume ? 'bg-amber-500 shadow-amber-200 hover:bg-amber-600' : 'bg-indigo-600 shadow-indigo-200 hover:bg-indigo-700'}`}
               >
-                {isResume ? 'Reanudar ▶' : 'Comenzar sesión ▶'}
+                {isResume ? 'Continuar ▶' : 'Comenzar ▶'}
               </button>
             </div>
           </div>
@@ -210,13 +229,6 @@ export function SessionPlayerPage() {
               <p className="mt-2 text-sm text-gray-600">{currentItem.exercise.description}</p>
             </div>
             <div className="px-8 pb-8 pt-5 text-center">
-              <div className="mb-5 flex items-center justify-center gap-1.5">
-                {Array.from({ length: currentItem.exercise.maxLevel }, (_, i) => (
-                  <div key={i} className={`h-2 w-7 rounded-full ${i < currentItem.level ? 'bg-indigo-500' : 'bg-gray-200'}`} />
-                ))}
-                <span className="ml-2 text-xs text-gray-500">Nivel {currentItem.level} de {currentItem.exercise.maxLevel}</span>
-              </div>
-              <p className="mb-5 text-sm text-gray-500">Ejercicio {currentIndex + 1} de {session.items.length}</p>
               <button
                 onClick={beginExercise}
                 className="rounded-xl bg-indigo-600 px-10 py-3 text-base font-semibold text-white shadow-md shadow-indigo-200 transition-all hover:bg-indigo-700 hover:shadow-lg active:scale-95"
@@ -266,12 +278,6 @@ export function SessionPlayerPage() {
                   <p className="mt-0.5 text-xs font-medium text-red-600">Errores</p>
                 </div>
               )}
-              {lastResult.reactionTimeMs !== null && lastResult.reactionTimeMs > 0 && (
-                <div className="rounded-xl bg-indigo-50 px-5 py-3">
-                  <p className="text-3xl font-bold text-indigo-600">{(lastResult.reactionTimeMs / 1000).toFixed(1)}s</p>
-                  <p className="mt-0.5 text-xs font-medium text-indigo-700">Tiempo medio</p>
-                </div>
-              )}
             </div>
             {total > 0 && (
               <div className="mt-5">
@@ -288,7 +294,7 @@ export function SessionPlayerPage() {
               onClick={nextExercise}
               className="mt-7 rounded-xl bg-indigo-600 px-8 py-3 font-semibold text-white shadow-md shadow-indigo-200 transition-all hover:bg-indigo-700 active:scale-95"
             >
-              {currentIndex + 1 >= session.items.length ? '🏆 Ver resumen' : 'Siguiente ejercicio →'}
+              {currentIndex + 1 >= session.items.length ? '🏆 ¡Terminé!' : 'Siguiente ▶'}
             </button>
           </div>
         );

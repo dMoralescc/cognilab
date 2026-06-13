@@ -4,7 +4,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
 } from 'recharts';
-import { usePatient } from '../../hooks/usePatients';
+import { usePatient, useGeneratePatientCode } from '../../hooks/usePatients';
 import { PatientFormModal } from './PatientFormModal';
 import { CreateSessionModal } from '../sessions/CreateSessionModal';
 import { exportPatientPdf } from '../../lib/exportPdf';
@@ -54,6 +54,9 @@ export function PatientProfilePage() {
   const [creatingSession, setCreatingSession] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('resumen');
   const [activeArea, setActiveArea] = useState<string | null>(null);
+  const [codeEmail, setCodeEmail] = useState('');
+  const [codeCopied, setCodeCopied] = useState(false);
+  const generateCode = useGeneratePatientCode(id);
 
   if (isLoading) {
     return (
@@ -215,6 +218,58 @@ export function PatientProfilePage() {
             <p className={`mt-1 text-3xl font-bold ${color}`}>{value}</p>
           </div>
         ))}
+      </div>
+
+      {/* Acceso remoto */}
+      <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-5">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-sm font-semibold text-indigo-900">Acceso remoto del paciente</h3>
+            {patient.accessCode ? (
+              <div className="mt-2 flex items-center gap-3 flex-wrap">
+                <span className="font-mono text-xl font-bold tracking-widest text-indigo-700 bg-white rounded-lg px-3 py-1 border border-indigo-200">
+                  {patient.accessCode}
+                </span>
+                <button
+                  onClick={() => {
+                    void navigator.clipboard.writeText(patient.accessCode ?? '');
+                    setCodeCopied(true);
+                    setTimeout(() => setCodeCopied(false), 2000);
+                  }}
+                  className="rounded-lg bg-indigo-600 px-3 py-1 text-xs font-medium text-white hover:bg-indigo-700"
+                >
+                  {codeCopied ? '¡Copiado!' : 'Copiar código'}
+                </button>
+                <a
+                  href={`${window.location.origin}/paciente/login`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs text-indigo-500 hover:underline"
+                >
+                  Abrir portal →
+                </a>
+              </div>
+            ) : (
+              <p className="mt-1 text-sm text-indigo-600">Sin código generado. Genera uno para que el paciente acceda a su portal.</p>
+            )}
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <input
+              type="email"
+              value={codeEmail}
+              onChange={(e) => setCodeEmail(e.target.value)}
+              placeholder="Email del paciente (opcional)"
+              className="rounded-lg border border-indigo-200 bg-white px-3 py-1.5 text-sm focus:border-indigo-400 focus:outline-none"
+            />
+            <button
+              onClick={() => generateCode.mutate(codeEmail || undefined)}
+              disabled={generateCode.isPending}
+              className="rounded-lg bg-indigo-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+            >
+              {patient.accessCode ? 'Regenerar código' : 'Generar código'}
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Tabs */}

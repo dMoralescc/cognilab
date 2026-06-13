@@ -19,6 +19,29 @@ export class MailService {
     });
   }
 
+  async sendPatientAccessEmail(to: string, name: string, code: string) {
+    const appUrl = this.config.get('APP_URL', 'http://localhost:5173');
+    const loginUrl = `${appUrl}/paciente/login`;
+
+    await this.transporter.sendMail({
+      from: `"Cognilab" <${this.config.get('MAIL_FROM', 'noreply@cognilab.app')}>`,
+      to,
+      subject: 'Tu código de acceso a Cognilab',
+      html: `
+        <h2>Hola, ${name}</h2>
+        <p>Tu profesional te ha asignado acceso a la plataforma Cognilab.</p>
+        <p>Tu código de acceso es:</p>
+        <div style="font-size:32px;font-weight:bold;letter-spacing:6px;padding:16px 24px;background:#f3f4f6;border-radius:8px;display:inline-block;margin:8px 0;">
+          ${code}
+        </div>
+        <p>Accede en: <a href="${loginUrl}">${loginUrl}</a></p>
+        <p>Guarda este código en un lugar seguro.</p>
+      `,
+    }).catch((err: unknown) => {
+      this.logger.warn(`Error enviando código de acceso a ${to}: ${String(err)}`);
+    });
+  }
+
   async sendVerificationEmail(to: string, name: string, token: string) {
     const appUrl = this.config.get('APP_URL', 'http://localhost:5173');
     const verifyUrl = `${appUrl}/verificar-email?token=${token}`;

@@ -130,6 +130,61 @@ export class AuthService {
     return { message: 'Correo verificado correctamente' };
   }
 
+  async patientLogin(accessCode: string) {
+    const patient = await this.prisma.patient.findUnique({
+      where: { accessCode },
+      select: { id: true, name: true, email: true, archivedAt: true },
+    });
+
+    if (!patient || patient.archivedAt) {
+      throw new UnauthorizedException('Código de acceso incorrecto');
+    }
+
+    const accessToken = await this.jwt.signAsync(
+      { sub: patient.id, role: 'patient' },
+      {
+        secret: this.config.getOrThrow('JWT_SECRET'),
+        expiresIn: '30d',
+      },
+    );
+
+    return { patient: { id: patient.id, name: patient.name, email: patient.email }, accessToken };
+  }
+
+  async generatePatientAccessCode(professionalId: string, patientId: string, email?: string) {
+    const patient = await this.prisma.patient.findUnique({
+      where: { id: patientId },
+      select: { professionalId: true },
+    });
+    if (!patient) throw new NotFoundException('Paciente no encontrado');
+    if (patient.professionalId !== professionalId) throw new UnauthorizedException();
+
+    const code = this.randomCode();
+
+    await this.prisma.patient.update({
+      where: { id: patientId },
+      data: {
+        accessCode: code,
+        ...(email !== undefined && { email: email || null }),
+      },
+    });
+
+    if (email) {
+      const p = await this.prisma.patient.findUnique({ where: { id: patientId }, select: { name: true } });
+      const mailEnabled = this.config.get('MAIL_ENABLED') !== 'false';
+      if (mailEnabled && p) {
+        await this.mail.sendPatientAccessEmail(email, p.name, code);
+      }
+    }
+
+    return { accessCode: code };
+  }
+
+  private randomCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    return Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  }
+
   async resendVerification(email: string) {
     const professional = await this.prisma.professional.findUnique({ where: { email } });
     if (!professional) throw new NotFoundException('Profesional no encontrado');

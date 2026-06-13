@@ -63,4 +63,11 @@ export class AuthController {
   resendVerification(@Body() body: { email: string }) {
     return this.authService.resendVerification(body.email);
   }
+
+  @Post('patient/login')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Iniciar sesión como paciente con código de acceso' })
+  patientLogin(@Body() body: { accessCode: string }) {
+    return this.authService.patientLogin(body.accessCode);
+  }
 }

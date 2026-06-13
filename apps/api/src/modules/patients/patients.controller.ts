@@ -8,6 +8,7 @@ import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { AuthService } from '../auth/auth.service';
 
 interface AuthUser { id: string; email: string }
 
@@ -16,7 +17,10 @@ interface AuthUser { id: string; email: string }
 @UseGuards(JwtAuthGuard)
 @Controller('patients')
 export class PatientsController {
-  constructor(private patientsService: PatientsService) {}
+  constructor(
+    private patientsService: PatientsService,
+    private authService: AuthService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Crear paciente' })
@@ -62,5 +66,16 @@ export class PatientsController {
   @ApiOperation({ summary: 'Desarchivar paciente' })
   unarchive(@CurrentUser() user: AuthUser, @Param('id') id: string) {
     return this.patientsService.unarchive(user.id, id);
+  }
+
+  @Post(':id/generate-code')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Generar código de acceso para el portal del paciente' })
+  generateCode(
+    @CurrentUser() user: AuthUser,
+    @Param('id') id: string,
+    @Body() body: { email?: string },
+  ) {
+    return this.authService.generatePatientAccessCode(user.id, id, body.email);
   }
 }

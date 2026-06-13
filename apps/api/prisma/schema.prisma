@@ -27,6 +27,8 @@ model Patient {
   birthDate      DateTime?
   diagnosis      String?
   notes          String?
+  email          String?      @unique
+  accessCode     String?      @unique
   professionalId String
   professional   Professional @relation(fields: [professionalId], references: [id])
   sessions       Session[]

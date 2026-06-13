@@ -14,6 +14,8 @@ export interface Patient {
 }
 
 export interface PatientDetail extends Patient {
+  email: string | null;
+  accessCode: string | null;
   sessions: Array<{
     id: string;
     status: string;
@@ -86,6 +88,15 @@ export function useUpdatePatient(id: string) {
     mutationFn: (dto: UpdatePatientInput) =>
       api.patch<Patient>(`/patients/${id}`, dto).then((r) => r.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['patients'] }),
+  });
+}
+
+export function useGeneratePatientCode(patientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (email?: string) =>
+      api.post<{ accessCode: string }>(`/patients/${patientId}/generate-code`, { email }).then((r) => r.data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['patients', patientId] }),
   });
 }
 
