@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CognitiveArea } from '@prisma/client';
+type CognitiveArea = string;
 
 @Injectable()
 export class ExercisesService {

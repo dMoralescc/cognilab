@@ -4,7 +4,6 @@ import {
   ForbiddenException,
   ConflictException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateResultDto } from './dto/create-result.dto';
 
@@ -25,13 +24,13 @@ export class ResultsService {
     if (item.session.patient.professionalId !== professionalId) throw new ForbiddenException();
     if (item.result) throw new ConflictException('Este ejercicio ya tiene un resultado registrado');
 
-    const data: Prisma.ResultUncheckedCreateInput = {
+    const data = {
       sessionItemId: dto.sessionItemId,
       hits: dto.hits,
       errors: dto.errors,
+      ...(dto.reactionTimeMs !== undefined && { reactionTimeMs: dto.reactionTimeMs }),
+      ...(dto.rawData !== undefined && { rawData: dto.rawData }),
     };
-    if (dto.reactionTimeMs !== undefined) data.reactionTimeMs = dto.reactionTimeMs;
-    if (dto.rawData !== undefined) data.rawData = dto.rawData as unknown as Prisma.JsonValue;
 
     const result = await this.prisma.result.create({ data });
 

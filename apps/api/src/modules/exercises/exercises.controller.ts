@@ -2,7 +2,15 @@ import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ExercisesService } from './exercises.service';
-import { CognitiveArea } from '@prisma/client';
+enum CognitiveArea {
+  ATTENTION = 'ATTENTION',
+  MEMORY = 'MEMORY',
+  EXECUTIVE_FUNCTIONS = 'EXECUTIVE_FUNCTIONS',
+  LANGUAGE = 'LANGUAGE',
+  VISUOSPATIAL = 'VISUOSPATIAL',
+  ORIENTATION = 'ORIENTATION',
+  SOCIAL_COGNITION = 'SOCIAL_COGNITION',
+}
 
 @ApiTags('exercises')
 @ApiBearerAuth()

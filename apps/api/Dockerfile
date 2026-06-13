@@ -12,12 +12,11 @@ COPY apps/api/prisma ./apps/api/prisma/
 
 RUN pnpm install --frozen-lockfile
 
-RUN pnpm --filter @cognilab/api exec prisma generate
-
 COPY packages/tsconfig ./packages/tsconfig/
 COPY packages/shared ./packages/shared/
 COPY apps/api ./apps/api/
 
+RUN pnpm --filter @cognilab/api exec prisma generate
 RUN pnpm --filter @cognilab/shared build
 RUN pnpm --filter @cognilab/api build
 
