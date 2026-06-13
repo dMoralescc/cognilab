@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { maze } from '@cognilab/shared';
 
 interface Props {
@@ -17,26 +17,22 @@ export function MazePlayer({ level, seed, onComplete }: Props) {
   const [done, setDone] = useState(false);
   const [startMs] = useState(Date.now());
 
-  // Build passage set for quick lookup
-  const passages = new Set<string>();
-  // Reconstruct from solution + walls: easier to invert walls to passages
-  // We'll use solution path for walkability hint; actually need full passages from walls
-  // Build from stimuli.walls negation:
-  const wallSet = new Set(stimuli.walls.map(w => `${w.from.row},${w.from.col}->${w.to.row},${w.to.col}`));
-  for (let r = 0; r < stimuli.rows; r++) {
-    for (let c = 0; c < stimuli.cols; c++) {
-      const neighbors = [{ row: r - 1, col: c }, { row: r + 1, col: c }, { row: r, col: c - 1 }, { row: r, col: c + 1 }];
-      for (const n of neighbors) {
-        if (n.row < 0 || n.row >= stimuli.rows || n.col < 0 || n.col >= stimuli.cols) continue;
-        const fwd = `${r},${c}->${n.row},${n.col}`;
-        const bwd = `${n.row},${n.col}->${r},${c}`;
-        if (!wallSet.has(fwd) && !wallSet.has(bwd)) passages.add(fwd);
+  // Build passage set once
+  const passages = useMemo(() => {
+    const wallSet = new Set(stimuli.walls.map((w) => `${w.from.row},${w.from.col}->${w.to.row},${w.to.col}`));
+    const p = new Set<string>();
+    for (let r = 0; r < stimuli.rows; r++) {
+      for (let c = 0; c < stimuli.cols; c++) {
+        for (const n of [{ row: r - 1, col: c }, { row: r + 1, col: c }, { row: r, col: c - 1 }, { row: r, col: c + 1 }]) {
+          if (n.row < 0 || n.row >= stimuli.rows || n.col < 0 || n.col >= stimuli.cols) continue;
+          if (!wallSet.has(`${r},${c}->${n.row},${n.col}`) && !wallSet.has(`${n.row},${n.col}->${r},${c}`)) {
+            p.add(`${r},${c}->${n.row},${n.col}`);
+          }
+        }
       }
     }
-  }
-
-  const canMove = (from: maze.Cell, to: maze.Cell) =>
-    passages.has(`${from.row},${from.col}->${to.row},${to.col}`);
+    return p;
+  }, [stimuli]);
 
   useEffect(() => {
     if (!done) return;
@@ -52,17 +48,20 @@ export function MazePlayer({ level, seed, onComplete }: Props) {
     (dir: Dir) => {
       if (done) return;
       const next = {
-        up: { row: pos.row - 1, col: pos.col },
-        down: { row: pos.row + 1, col: pos.col },
-        left: { row: pos.row, col: pos.col - 1 },
-        right: { row: pos.row, col: pos.col + 1 },
+        up:    { row: pos.row - 1, col: pos.col },
+        down:  { row: pos.row + 1, col: pos.col },
+        left:  { row: pos.row,     col: pos.col - 1 },
+        right: { row: pos.row,     col: pos.col + 1 },
       }[dir];
       if (next.row < 0 || next.row >= stimuli.rows || next.col < 0 || next.col >= stimuli.cols) return;
-      if (!canMove(pos, next)) { setErrors((e) => e + 1); return; }
+      if (!passages.has(`${pos.row},${pos.col}->${next.row},${next.col}`)) {
+        setErrors((e) => e + 1);
+        return;
+      }
       setPos(next);
       setPath((prev) => [...prev, next]);
     },
-    [pos, done, stimuli.rows, stimuli.cols, canMove],
+    [pos, done, stimuli.rows, stimuli.cols, passages],
   );
 
   useEffect(() => {
@@ -75,66 +74,151 @@ export function MazePlayer({ level, seed, onComplete }: Props) {
     return () => window.removeEventListener('keydown', onKey);
   }, [move]);
 
-  const cellSize = Math.min(32, Math.floor(280 / stimuli.cols));
+  // Compute cell size to fit ~360px wide
+  const CELL = Math.max(20, Math.min(52, Math.floor(360 / stimuli.cols)));
+  const W = stimuli.cols * CELL;
+  const H = stimuli.rows * CELL;
+
+  const pathSet = new Set(path.map((p) => `${p.row},${p.col}`));
 
   return (
-    <div className="select-none">
-      <div className="mb-3 flex items-center justify-between text-xs text-gray-400">
-        <span>Encuentra la salida — usa las flechas del teclado o los botones</span>
-        <span className="font-mono">Errores: {errors}</span>
+    <div className="select-none space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-gray-600">Encuentra la salida 🏁 — flechas del teclado o botones</span>
+        {errors > 0 && (
+          <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-600">
+            {errors} error{errors !== 1 ? 'es' : ''}
+          </span>
+        )}
       </div>
 
-      {/* Maze grid */}
-      <div className="mx-auto mb-4 overflow-auto" style={{ width: `${stimuli.cols * cellSize + 4}px` }}>
-        <div className="relative" style={{ width: `${stimuli.cols * cellSize}px`, height: `${stimuli.rows * cellSize}px` }}>
-          {Array.from({ length: stimuli.rows }, (_, r) =>
-            Array.from({ length: stimuli.cols }, (_, c) => {
-              const isPlayer = pos.row === r && pos.col === c;
-              const isEnd = stimuli.end.row === r && stimuli.end.col === c;
-              const isStart = stimuli.start.row === r && stimuli.start.col === c;
-              return (
-                <div
-                  key={`${r}-${c}`}
-                  className={`absolute flex items-center justify-center text-xs font-bold ${
-                    isPlayer ? 'bg-indigo-500 text-white rounded' :
-                    isEnd ? 'bg-green-200 rounded' :
-                    isStart ? 'bg-yellow-100 rounded' : ''
-                  }`}
-                  style={{ left: c * cellSize, top: r * cellSize, width: cellSize, height: cellSize, fontSize: cellSize * 0.4 }}
-                >
-                  {isPlayer ? '●' : isEnd ? '🏁' : null}
-                </div>
-              );
-            })
-          )}
-          {/* Draw walls */}
-          {stimuli.walls.map((w, i) => {
-            const isVertical = w.from.col !== w.to.col;
-            const col = Math.max(w.from.col, w.to.col);
-            const row = Math.max(w.from.row, w.to.row);
-            return isVertical ? (
-              <div key={i} className="absolute bg-gray-800"
-                style={{ left: col * cellSize, top: row * cellSize - cellSize, width: 2, height: cellSize }} />
-            ) : (
-              <div key={i} className="absolute bg-gray-800"
-                style={{ left: row * cellSize - cellSize, top: col * cellSize, width: cellSize, height: 2 }} />
-            );
-          })}
+      {/* Maze SVG */}
+      <div className="flex justify-center">
+        <div className="overflow-auto rounded-xl border-2 border-gray-200 bg-slate-50 p-1 shadow-inner">
+          <svg
+            width={W}
+            height={H}
+            viewBox={`0 0 ${W} ${H}`}
+            style={{ display: 'block' }}
+          >
+            {/* Cell backgrounds */}
+            {Array.from({ length: stimuli.rows }, (_, r) =>
+              Array.from({ length: stimuli.cols }, (_, c) => {
+                const isPlayer = pos.row === r && pos.col === c;
+                const isEnd    = stimuli.end.row === r && stimuli.end.col === c;
+                const isStart  = stimuli.start.row === r && stimuli.start.col === c;
+                const isPath   = pathSet.has(`${r},${c}`) && !isPlayer;
+
+                const fill = isPlayer ? '#6366f1'
+                  : isEnd    ? '#d1fae5'
+                  : isStart  ? '#fef9c3'
+                  : isPath   ? '#e0e7ff'
+                  : '#f8fafc';
+
+                return (
+                  <rect
+                    key={`cell-${r}-${c}`}
+                    x={c * CELL}
+                    y={r * CELL}
+                    width={CELL}
+                    height={CELL}
+                    fill={fill}
+                  />
+                );
+              })
+            )}
+
+            {/* Walls — using correct SVG line coordinates */}
+            {stimuli.walls.map((w, i) => {
+              const sameRow = w.from.row === w.to.row;
+              if (sameRow) {
+                // Cells share a row → wall is a vertical segment between them
+                const wallCol = Math.max(w.from.col, w.to.col);
+                const wallRow = w.from.row;
+                return (
+                  <line
+                    key={`w${i}`}
+                    x1={wallCol * CELL} y1={wallRow * CELL}
+                    x2={wallCol * CELL} y2={(wallRow + 1) * CELL}
+                    stroke="#334155" strokeWidth={2} strokeLinecap="round"
+                  />
+                );
+              } else {
+                // Cells share a column → wall is a horizontal segment between them
+                const wallRow = Math.max(w.from.row, w.to.row);
+                const wallCol = w.from.col;
+                return (
+                  <line
+                    key={`w${i}`}
+                    x1={wallCol * CELL}       y1={wallRow * CELL}
+                    x2={(wallCol + 1) * CELL} y2={wallRow * CELL}
+                    stroke="#334155" strokeWidth={2} strokeLinecap="round"
+                  />
+                );
+              }
+            })}
+
+            {/* Outer border */}
+            <rect x={0} y={0} width={W} height={H} fill="none" stroke="#1e293b" strokeWidth={3} />
+
+            {/* Player circle */}
+            <circle
+              cx={(pos.col + 0.5) * CELL}
+              cy={(pos.row + 0.5) * CELL}
+              r={CELL * 0.32}
+              fill="#6366f1"
+            />
+            {/* Player dot highlight */}
+            <circle
+              cx={(pos.col + 0.35) * CELL}
+              cy={(pos.row + 0.35) * CELL}
+              r={CELL * 0.08}
+              fill="white"
+              opacity={0.5}
+            />
+
+            {/* End flag emoji */}
+            <text
+              x={(stimuli.end.col + 0.5) * CELL}
+              y={(stimuli.end.row + 0.5) * CELL + CELL * 0.18}
+              textAnchor="middle"
+              fontSize={CELL * 0.55}
+            >
+              🏁
+            </text>
+          </svg>
         </div>
       </div>
 
-      {/* D-pad for touch */}
-      <div className="mx-auto grid w-28 grid-cols-3 gap-1">
+      {/* D-pad */}
+      <div className="mx-auto grid w-36 grid-cols-3 gap-1.5">
         <div />
-        <button onClick={() => move('up')} className="rounded bg-gray-100 p-2 text-center text-lg hover:bg-gray-200">↑</button>
+        <button
+          onClick={() => move('up')}
+          className="flex h-11 items-center justify-center rounded-xl bg-gray-100 text-xl shadow-sm transition-all hover:bg-indigo-100 active:scale-90 active:bg-indigo-200"
+        >↑</button>
         <div />
-        <button onClick={() => move('left')} className="rounded bg-gray-100 p-2 text-center text-lg hover:bg-gray-200">←</button>
+        <button
+          onClick={() => move('left')}
+          className="flex h-11 items-center justify-center rounded-xl bg-gray-100 text-xl shadow-sm transition-all hover:bg-indigo-100 active:scale-90 active:bg-indigo-200"
+        >←</button>
+        <div className="flex h-11 items-center justify-center rounded-xl bg-gray-50 text-sm text-gray-300">●</div>
+        <button
+          onClick={() => move('right')}
+          className="flex h-11 items-center justify-center rounded-xl bg-gray-100 text-xl shadow-sm transition-all hover:bg-indigo-100 active:scale-90 active:bg-indigo-200"
+        >→</button>
         <div />
-        <button onClick={() => move('right')} className="rounded bg-gray-100 p-2 text-center text-lg hover:bg-gray-200">→</button>
-        <div />
-        <button onClick={() => move('down')} className="rounded bg-gray-100 p-2 text-center text-lg hover:bg-gray-200">↓</button>
+        <button
+          onClick={() => move('down')}
+          className="flex h-11 items-center justify-center rounded-xl bg-gray-100 text-xl shadow-sm transition-all hover:bg-indigo-100 active:scale-90 active:bg-indigo-200"
+        >↓</button>
         <div />
       </div>
+
+      {done && (
+        <p className="text-center text-base font-semibold text-green-600">¡Salida encontrada! 🎉</p>
+      )}
     </div>
   );
 }
