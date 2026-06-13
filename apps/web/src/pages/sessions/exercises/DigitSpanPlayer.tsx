@@ -18,9 +18,16 @@ export function DigitSpanPlayer({ level, seed, onComplete }: Props) {
 
   useEffect(() => {
     if (phase !== 'show') return;
-    if (showIdx >= stimuli.sequence.length) {
+    // showIdx=0 → "Preparado..." 800ms
+    // showIdx=1..N → muestra dígito sequence[showIdx-1] durante 950ms
+    // showIdx=N+1 → transición a recall (el último dígito ya tuvo su tiempo)
+    if (showIdx > stimuli.sequence.length) {
       setPhase('recall');
       return;
+    }
+    if (showIdx === 0) {
+      const t = setTimeout(() => setShowIdx(1), 800);
+      return () => clearTimeout(t);
     }
     setDigitKey((k) => k + 1);
     const t = setTimeout(() => setShowIdx((i) => i + 1), 950);
