@@ -31,7 +31,7 @@ export class ResultsService {
       errors: dto.errors,
     };
     if (dto.reactionTimeMs !== undefined) data.reactionTimeMs = dto.reactionTimeMs;
-    if (dto.rawData !== undefined) data.rawData = dto.rawData as Prisma.InputJsonValue;
+    if (dto.rawData !== undefined) data.rawData = dto.rawData as unknown as Prisma.JsonValue;
 
     const result = await this.prisma.result.create({ data });
 
@@ -47,7 +47,7 @@ export class ResultsService {
     });
 
     if (!session) return;
-    const allDone = session.items.every((it) => it.result !== null);
+    const allDone = session.items.every((it: { result: unknown }) => it.result !== null);
     if (!allDone) return;
 
     await this.prisma.session.update({
