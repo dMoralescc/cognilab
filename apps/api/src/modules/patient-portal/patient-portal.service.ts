@@ -60,6 +60,7 @@ export class PatientPortalService {
           select: {
             patientId: true,
             id: true,
+            startAt: true,
             patient: { select: { professionalId: true, name: true } },
           },
         },
@@ -71,7 +72,7 @@ export class PatientPortalService {
 
     await this.prisma.session.update({
       where: { id: item.session.id },
-      data: { status: 'IN_PROGRESS', startAt: item.session.id ? undefined : new Date() },
+      data: { status: 'IN_PROGRESS', ...(!item.session.startAt && { startAt: new Date() }) },
     });
 
     const result = await this.prisma.result.create({
