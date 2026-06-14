@@ -44,7 +44,7 @@ export class AuthService {
       select: { id: true, email: true, name: true },
     });
 
-    const mailEnabled = this.config.get('MAIL_ENABLED') !== 'false';
+    const mailEnabled = this.config.get('MAIL_ENABLED') === 'true';
 
     if (mailEnabled) {
       await this.mail.sendVerificationEmail(dto.email, dto.name, verificationToken);
@@ -71,7 +71,15 @@ export class AuthService {
     if (!passwordMatch) throw new UnauthorizedException('Credenciales incorrectas');
 
     if (!professional.emailVerified) {
-      throw new UnauthorizedException('Debes verificar tu correo electrónico antes de entrar');
+      const mailEnabled = this.config.get('MAIL_ENABLED') === 'true';
+      if (!mailEnabled) {
+        await this.prisma.professional.update({
+          where: { id: professional.id },
+          data: { emailVerified: true, verificationToken: null, verificationTokenExpiresAt: null },
+        });
+      } else {
+        throw new UnauthorizedException('Debes verificar tu correo electrónico antes de entrar');
+      }
     }
 
     const tokens = await this.generateTokens(professional.id, professional.email);
@@ -171,7 +179,7 @@ export class AuthService {
 
     if (email) {
       const p = await this.prisma.patient.findUnique({ where: { id: patientId }, select: { name: true } });
-      const mailEnabled = this.config.get('MAIL_ENABLED') !== 'false';
+      const mailEnabled = this.config.get('MAIL_ENABLED') === 'true';
       if (mailEnabled && p) {
         await this.mail.sendPatientAccessEmail(email, p.name, code);
       }
