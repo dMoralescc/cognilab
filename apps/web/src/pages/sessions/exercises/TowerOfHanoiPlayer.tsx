@@ -133,10 +133,11 @@ export function TowerOfHanoiPlayer({ level, seed, onComplete }: Props) {
         className={`relative rounded-2xl border-2 p-4 pb-0 transition-colors ${
           illegalFlash ? 'border-red-300 bg-red-50' : 'border-gray-200 bg-gradient-to-b from-slate-50 to-gray-100'
         }`}
+        style={{ touchAction: 'none' }}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
       >
-        <div className="flex justify-around gap-2">
+        <div className="flex justify-around gap-1">
           {pegs.map((peg, pegIdx) => {
             const isOver = dragOver === pegIdx && dragging !== null && dragging.pegIdx !== pegIdx;
             const isSource = dragging?.pegIdx === pegIdx;
@@ -147,7 +148,7 @@ export function TowerOfHanoiPlayer({ level, seed, onComplete }: Props) {
               <div
                 key={pegIdx}
                 ref={(el) => { pegRefs.current[pegIdx] = el; }}
-                className={`relative flex w-36 flex-col items-center transition-all ${
+                className={`relative flex flex-1 flex-col items-center transition-all ${
                   isOver ? 'opacity-100' : ''
                 }`}
               >

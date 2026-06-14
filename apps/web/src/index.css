@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  /* Remove tap flash on mobile and eliminate 300ms delay */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button,
+  [role="button"],
+  a {
+    touch-action: manipulation;
+    cursor: pointer;
+  }
+}
+
 @layer utilities {
   .animate-pop-in {
     animation: pop-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;

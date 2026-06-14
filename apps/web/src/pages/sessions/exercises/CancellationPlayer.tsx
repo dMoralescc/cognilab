@@ -15,7 +15,9 @@ export function CancellationPlayer({ level, seed, elapsedMs, onComplete }: Props
   const tapTimesRef = useRef<Map<number, number>>(new Map());
 
   const { stimuli } = content;
-  const cellSize = stimuli.gridSize <= 7 ? 56 : stimuli.gridSize <= 9 ? 46 : 38;
+  const maxFromScreen = Math.max(24, Math.floor((window.innerWidth - 56) / stimuli.gridSize));
+  const preferred = stimuli.gridSize <= 7 ? 56 : stimuli.gridSize <= 9 ? 46 : 38;
+  const cellSize = Math.min(preferred, maxFromScreen);
   const iconSize = Math.round(cellSize * 0.55);
 
   useEffect(() => {

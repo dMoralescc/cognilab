@@ -230,7 +230,7 @@ export function SessionPlayerPage() {
 
       {/* Exercise player */}
       {started && phase === 'playing' && currentItem && (
-        <div className="rounded-xl border border-gray-200 bg-white p-6">
+        <div className="rounded-xl border border-gray-200 bg-white p-3 sm:p-6">
           {renderExercise({
             slug: currentItem.exercise.slug,
             level: currentItem.level,
