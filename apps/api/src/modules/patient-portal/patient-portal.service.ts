@@ -1,9 +1,13 @@
 import { Injectable, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 @Injectable()
 export class PatientPortalService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notifications: NotificationsGateway,
+  ) {}
 
   async getMe(patientId: string) {
     const patient = await this.prisma.patient.findUnique({
@@ -49,7 +53,17 @@ export class PatientPortalService {
   ) {
     const item = await this.prisma.sessionItem.findUnique({
       where: { id: sessionItemId },
-      include: { result: true, session: { select: { patientId: true, id: true } } },
+      include: {
+        result: true,
+        exercise: { select: { slug: true, title: true } },
+        session: {
+          select: {
+            patientId: true,
+            id: true,
+            patient: { select: { professionalId: true, name: true } },
+          },
+        },
+      },
     });
     if (!item) throw new NotFoundException('Ítem no encontrado');
     if (item.session.patientId !== patientId) throw new ForbiddenException();
@@ -71,6 +85,18 @@ export class PatientPortalService {
     });
 
     await this.maybeCompleteSession(item.session.id);
+
+    this.notifications.notifyProfessional(item.session.patient.professionalId, 'result:submitted', {
+      patientId: item.session.patientId,
+      patientName: item.session.patient.name,
+      sessionId: item.session.id,
+      sessionItemId,
+      exerciseSlug: item.exercise.slug,
+      exerciseTitle: item.exercise.title,
+      hits,
+      errors,
+      reactionTimeMs: reactionTimeMs ?? null,
+    });
 
     return result;
   }

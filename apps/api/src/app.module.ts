@@ -8,6 +8,7 @@ import { SessionsModule } from './modules/sessions/sessions.module';
 import { ExercisesModule } from './modules/exercises/exercises.module';
 import { PatientPortalModule } from './modules/patient-portal/patient-portal.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { FavoritesModule } from './modules/favorites/favorites.module';
     ResultsModule,
     PatientPortalModule,
     FavoritesModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}

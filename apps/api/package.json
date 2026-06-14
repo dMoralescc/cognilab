@@ -27,7 +27,9 @@
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.4.7",
+    "@nestjs/platform-socket.io": "^11.1.26",
     "@nestjs/swagger": "^7.4.2",
+    "@nestjs/websockets": "^11.1.26",
     "@prisma/client": "^5.21.1",
     "@types/nodemailer": "^8.0.1",
     "bcryptjs": "^3.0.3",
@@ -37,7 +39,8 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "socket.io": "^4.8.3"
   },
   "devDependencies": {
     "@cognilab/tsconfig": "workspace:*",

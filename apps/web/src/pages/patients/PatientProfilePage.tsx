@@ -8,6 +8,7 @@ import { usePatient, useGeneratePatientCode } from '../../hooks/usePatients';
 import { PatientFormModal } from './PatientFormModal';
 import { CreateSessionModal } from '../sessions/CreateSessionModal';
 import { exportPatientPdf } from '../../lib/exportPdf';
+import { useRealtimeResults } from '../../hooks/useRealtimeResults';
 
 const AREA_META: Record<string, { label: string; color: string; icon: string }> = {
   ATTENTION:          { label: 'Atención',         color: '#6366f1', icon: '👁' },
@@ -51,6 +52,7 @@ export function PatientProfilePage() {
   const { data: patient, isLoading } = usePatient(id);
   const navigate = useNavigate();
   const [editing, setEditing] = useState(false);
+  useRealtimeResults(id);
   const [creatingSession, setCreatingSession] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('resumen');
   const [activeArea, setActiveArea] = useState<string | null>(null);
