@@ -17,6 +17,7 @@ import { PrintReportPage } from './pages/patients/PrintReportPage';
 import { PatientLoginPage } from './pages/patient/PatientLoginPage';
 import { PatientSessionsPage } from './pages/patient/PatientSessionsPage';
 import { PatientSessionPlayerPage } from './pages/patient/PatientSessionPlayerPage';
+import { LandingPage } from './pages/LandingPage';
 
 function PatientProtectedRoute({ children }: { children: React.ReactNode }) {
   const patient = usePatientAuthStore((s) => s.patient);
@@ -37,6 +38,9 @@ export default function App() {
 
   return (
     <Routes>
+      {/* Landing pública */}
+      <Route path="/" element={<LandingPage />} />
+
       {/* Auth profesional */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/registro" element={<RegisterPage />} />
@@ -68,7 +72,7 @@ export default function App() {
         </Route>
       </Route>
 
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
