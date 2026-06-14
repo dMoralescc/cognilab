@@ -42,6 +42,32 @@ export class MailService {
     });
   }
 
+  async sendSessionAssignedEmail(to: string, name: string, exerciseCount: number, dueDate?: Date) {
+    const appUrl = this.config.get('APP_URL', 'http://localhost:5173');
+    const loginUrl = `${appUrl}/paciente/login`;
+    const dueLine = dueDate
+      ? `<p>📅 Fecha límite: <strong>${dueDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</strong></p>`
+      : '';
+
+    await this.transporter.sendMail({
+      from: `"Cognilab" <${this.config.get('MAIL_FROM', 'noreply@cognilab.app')}>`,
+      to,
+      subject: 'Tu profesional te ha asignado nuevos ejercicios',
+      html: `
+        <h2>Hola, ${name} 👋</h2>
+        <p>Tu profesional te ha asignado <strong>${exerciseCount} ejercicio${exerciseCount !== 1 ? 's' : ''}</strong> nuevos en Cognilab.</p>
+        ${dueLine}
+        <p>Accede con tu código personal en:</p>
+        <a href="${loginUrl}" style="display:inline-block;padding:12px 24px;background:#4f46e5;color:white;text-decoration:none;border-radius:6px;font-weight:bold;">
+          Ir a mis ejercicios →
+        </a>
+        <p style="margin-top:16px;color:#6b7280;font-size:14px;">Si ya tienes tu código, ve directamente a ${loginUrl}</p>
+      `,
+    }).catch((err: unknown) => {
+      this.logger.warn(`Error enviando notificación de sesión a ${to}: ${String(err)}`);
+    });
+  }
+
   async sendVerificationEmail(to: string, name: string, token: string) {
     const appUrl = this.config.get('APP_URL', 'http://localhost:5173');
     const verifyUrl = `${appUrl}/verificar-email?token=${token}`;

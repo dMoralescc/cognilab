@@ -1,20 +1,24 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { MailService } from '../mail/mail.service';
 import { CreateSessionDto } from './dto/create-session.dto';
 
 @Injectable()
 export class SessionsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private mail: MailService,
+  ) {}
 
   async create(professionalId: string, dto: CreateSessionDto) {
     const patient = await this.prisma.patient.findUnique({
       where: { id: dto.patientId },
-      select: { professionalId: true },
+      select: { professionalId: true, name: true, email: true },
     });
     if (!patient) throw new NotFoundException('Paciente no encontrado');
     if (patient.professionalId !== professionalId) throw new ForbiddenException();
 
-    return this.prisma.session.create({
+    const session = await this.prisma.session.create({
       data: {
         patientId: dto.patientId,
         ...(dto.dueDate !== undefined && { dueDate: new Date(dto.dueDate) }),
@@ -34,6 +38,13 @@ export class SessionsService {
         },
       },
     });
+
+    if (dto.remote && patient.email) {
+      const dueDate = dto.dueDate ? new Date(dto.dueDate) : undefined;
+      void this.mail.sendSessionAssignedEmail(patient.email, patient.name, dto.items.length, dueDate);
+    }
+
+    return session;
   }
 
   async findAll(professionalId: string, patientId: string) {
