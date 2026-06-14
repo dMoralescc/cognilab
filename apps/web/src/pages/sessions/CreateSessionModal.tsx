@@ -36,6 +36,7 @@ export function CreateSessionModal({ patientId, patientHistory = [], onClose, on
   const [selectedArea, setSelectedArea] = useState('');
   const [selected, setSelected] = useState<SelectedItem[]>([]);
   const [dueDate, setDueDate] = useState('');
+  const [remote, setRemote] = useState(false);
   const [error, setError] = useState('');
 
   const { data: exercises = [], isLoading: loadingExercises } = useExercises(selectedArea || undefined);
@@ -104,9 +105,10 @@ export function CreateSessionModal({ patientId, patientHistory = [], onClose, on
           order: i,
         })),
         ...(dueDate && { dueDate }),
+        ...(remote && { remote: true }),
       });
       onCreated(session.id);
-      navigate(`/sesiones/${session.id}`);
+      if (!remote) navigate(`/sesiones/${session.id}`);
     } catch {
       setError('Error al crear la sesión');
     }
@@ -305,6 +307,31 @@ export function CreateSessionModal({ patientId, patientHistory = [], onClose, on
 
             {/* Config footer */}
             <form onSubmit={handleSubmit} className="space-y-3 border-t border-gray-100 p-4">
+              {/* Remote toggle */}
+              <button
+                type="button"
+                onClick={() => setRemote((v) => !v)}
+                className={`flex w-full items-center gap-3 rounded-xl border-2 px-3 py-2.5 text-left transition-all ${
+                  remote
+                    ? 'border-indigo-400 bg-indigo-50'
+                    : 'border-gray-200 bg-white hover:border-gray-300'
+                }`}
+              >
+                <div className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${remote ? 'bg-indigo-500' : 'bg-gray-200'}`}>
+                  <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${remote ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                </div>
+                <div>
+                  <p className={`text-xs font-semibold ${remote ? 'text-indigo-700' : 'text-gray-700'}`}>
+                    📱 Sesión remota
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {remote
+                      ? 'El paciente la verá en su portal con su código de acceso'
+                      : 'Activar para asignar al portal del paciente'}
+                  </p>
+                </div>
+              </button>
+
               <div>
                 <label className="mb-1 block text-xs font-medium text-gray-600">
                   Fecha límite (opcional)
@@ -332,9 +359,17 @@ export function CreateSessionModal({ patientId, patientHistory = [], onClose, on
                 <button
                   type="submit"
                   disabled={create.isPending || selected.length === 0}
-                  className="flex-1 rounded-lg bg-indigo-600 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+                  className={`flex-1 rounded-lg py-2 text-sm font-medium text-white disabled:opacity-50 ${
+                    remote
+                      ? 'bg-indigo-600 hover:bg-indigo-700'
+                      : 'bg-indigo-600 hover:bg-indigo-700'
+                  }`}
                 >
-                  {create.isPending ? 'Creando...' : 'Crear sesión'}
+                  {create.isPending
+                    ? 'Creando...'
+                    : remote
+                    ? '📱 Asignar al paciente'
+                    : 'Crear sesión'}
                 </button>
               </div>
             </form>

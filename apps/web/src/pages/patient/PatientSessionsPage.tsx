@@ -15,6 +15,7 @@ interface Session {
   status: string;
   createdAt: string;
   dueDate: string | null;
+  remote: boolean;
   items: SessionItem[];
 }
 
@@ -70,7 +71,7 @@ export function PatientSessionsPage() {
         <div className="rounded-2xl border border-dashed border-gray-300 py-16 text-center">
           <p className="text-4xl">🧩</p>
           <p className="mt-3 font-medium text-gray-600">No tienes sesiones asignadas aún</p>
-          <p className="mt-1 text-sm text-gray-400">Tu profesional te asignará ejercicios próximamente.</p>
+          <p className="mt-1 text-sm text-gray-400">Tu profesional te enviará ejercicios cuando estén listos.</p>
         </div>
       )}
 
@@ -125,10 +126,22 @@ function SessionCard({ session, onPlay }: { session: Session; onPlay: (() => voi
         </p>
         <p className="text-xs text-gray-400">
           {new Date(session.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
-          {session.dueDate && (
-            <span className="ml-2">· Entrega: {new Date(session.dueDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}</span>
-          )}
         </p>
+        {session.dueDate && (() => {
+          const due = new Date(session.dueDate!);
+          const diffDays = Math.ceil((due.getTime() - Date.now()) / 86_400_000);
+          const urgent = diffDays >= 0 && diffDays <= 2;
+          const overdue = diffDays < 0;
+          return (
+            <p className={`text-xs font-medium ${overdue ? 'text-red-500' : urgent ? 'text-amber-600' : 'text-gray-500'}`}>
+              {overdue
+                ? `⚠️ Venció hace ${Math.abs(diffDays)} día${Math.abs(diffDays) !== 1 ? 's' : ''}`
+                : urgent
+                ? `⏰ Vence en ${diffDays} día${diffDays !== 1 ? 's' : ''}`
+                : `📅 Entrega: ${due.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`}
+            </p>
+          );
+        })()}
       </div>
       {onPlay && (
         <button

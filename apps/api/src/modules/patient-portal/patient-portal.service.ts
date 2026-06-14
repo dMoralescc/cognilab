@@ -16,7 +16,7 @@ export class PatientPortalService {
 
   async getSessions(patientId: string) {
     return this.prisma.session.findMany({
-      where: { patientId },
+      where: { patientId, remote: true },
       include: {
         items: {
           include: {
@@ -102,7 +102,7 @@ export class PatientPortalService {
         },
       },
     });
-    if (!session) throw new NotFoundException('Sesión no encontrada');
+    if (!session || !session.remote) throw new NotFoundException('Sesión no encontrada');
     if (session.patientId !== patientId) throw new ForbiddenException();
     return session;
   }
