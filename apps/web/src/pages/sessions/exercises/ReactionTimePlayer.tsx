@@ -7,12 +7,47 @@ interface Props {
   onComplete: (r: { hits: number; errors: number; reactionTimeMs: number | null; rawData: Record<string, unknown> }) => void;
 }
 
-// Visual config for each choice option
-const CHOICE_CONFIG: Record<string, { emoji: string; bg: string; border: string; label: string }> = {
-  '◆': { emoji: '💎', bg: 'bg-cyan-100',    border: 'border-cyan-400',   label: 'Diamante' },
-  '▲': { emoji: '🔺', bg: 'bg-red-100',     border: 'border-red-400',    label: 'Triángulo' },
-  '■': { emoji: '🟦', bg: 'bg-blue-100',    border: 'border-blue-400',   label: 'Cuadrado' },
-  '●': { emoji: '🟢', bg: 'bg-green-100',   border: 'border-green-400',  label: 'Círculo' },
+// SVG shape components — no emojis
+function ShapeCircle({ color }: { color: string }) {
+  return (
+    <svg viewBox="0 0 48 48" className="h-full w-full">
+      <circle cx="24" cy="24" r="20" fill={color} />
+    </svg>
+  );
+}
+function ShapeSquare({ color }: { color: string }) {
+  return (
+    <svg viewBox="0 0 48 48" className="h-full w-full">
+      <rect x="6" y="6" width="36" height="36" rx="4" fill={color} />
+    </svg>
+  );
+}
+function ShapeTriangle({ color }: { color: string }) {
+  return (
+    <svg viewBox="0 0 48 48" className="h-full w-full">
+      <polygon points="24,4 44,44 4,44" fill={color} />
+    </svg>
+  );
+}
+function ShapeDiamond({ color }: { color: string }) {
+  return (
+    <svg viewBox="0 0 48 48" className="h-full w-full">
+      <polygon points="24,2 46,24 24,46 2,24" fill={color} />
+    </svg>
+  );
+}
+
+const SHAPE_CONFIG: Record<string, {
+  Component: React.ComponentType<{ color: string }>;
+  color: string;
+  bg: string;
+  border: string;
+  label: string;
+}> = {
+  '◆': { Component: ShapeDiamond,  color: '#0891b2', bg: 'bg-cyan-50',   border: 'border-cyan-400',   label: 'Diamante' },
+  '▲': { Component: ShapeTriangle, color: '#dc2626', bg: 'bg-red-50',    border: 'border-red-400',    label: 'Triángulo' },
+  '■': { Component: ShapeSquare,   color: '#2563eb', bg: 'bg-blue-50',   border: 'border-blue-400',   label: 'Cuadrado' },
+  '●': { Component: ShapeCircle,   color: '#16a34a', bg: 'bg-green-50',  border: 'border-green-400',  label: 'Círculo' },
 };
 
 type Phase = 'isi' | 'stimulus' | 'done';
@@ -86,12 +121,7 @@ export function ReactionTimePlayer({ level, seed, onComplete }: Props) {
   useEffect(() => {
     if (phase !== 'done') return;
     const summary = reactionTime.summarize(stimuli, responses);
-    onComplete({
-      hits: summary.hits,
-      errors: summary.errors,
-      reactionTimeMs: summary.reactionTimeMs,
-      rawData: summary.rawData,
-    });
+    onComplete({ hits: summary.hits, errors: summary.errors, reactionTimeMs: summary.reactionTimeMs, rawData: summary.rawData });
   }, [phase]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleTap = (chosenIndex: number | null = null) => {
@@ -115,12 +145,8 @@ export function ReactionTimePlayer({ level, seed, onComplete }: Props) {
       {/* Header stats */}
       <div className="flex items-center justify-between">
         <div className="flex gap-2">
-          <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
-            ✓ {hits}
-          </span>
-          <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-600">
-            ✗ {trialIdx - hits}
-          </span>
+          <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">✓ {hits}</span>
+          <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-600">✗ {trialIdx - hits}</span>
         </div>
         {lastRt && (
           <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
@@ -132,26 +158,28 @@ export function ReactionTimePlayer({ level, seed, onComplete }: Props) {
 
       {/* Progress */}
       <div className="h-2 overflow-hidden rounded-full bg-gray-100">
-        <div
-          className="h-2 rounded-full bg-indigo-500 transition-all duration-300"
-          style={{ width: `${(trialIdx / total) * 100}%` }}
-        />
+        <div className="h-2 rounded-full bg-indigo-500 transition-all duration-300"
+          style={{ width: `${(trialIdx / total) * 100}%` }} />
       </div>
 
-      {/* Simple RT */}
+      {/* Simple RT — big tap zone */}
       {!isChoice && (
         <button
           onClick={() => handleTap(null)}
           className={`relative flex h-64 w-full flex-col items-center justify-center rounded-3xl border-4 transition-all duration-150 ${flashBg}`}
         >
           {phase === 'stimulus' ? (
-            <div className="flex flex-col items-center gap-3 animate-bounce">
-              <span className="text-8xl">⭐</span>
-              <span className="text-lg font-bold text-amber-600">¡Pulsa!</span>
+            <div className="flex flex-col items-center gap-4">
+              <div className="h-28 w-28 animate-bounce">
+                <ShapeCircle color="#16a34a" />
+              </div>
+              <span className="text-base font-bold text-green-700">¡Pulsa!</span>
             </div>
           ) : (
-            <div className="flex flex-col items-center gap-2 opacity-40">
-              <span className="text-5xl text-gray-400">+</span>
+            <div className="flex flex-col items-center gap-2 opacity-30">
+              <div className="h-16 w-16">
+                <ShapeCircle color="#9ca3af" />
+              </div>
               <span className="text-sm text-gray-400">Espera...</span>
             </div>
           )}
@@ -166,32 +194,38 @@ export function ReactionTimePlayer({ level, seed, onComplete }: Props) {
             <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">
               {phase === 'stimulus' ? 'Toca este' : 'Espera...'}
             </p>
-            <div className={`flex h-24 w-24 items-center justify-center rounded-2xl border-4 transition-all ${
+            <div className={`flex h-24 w-24 items-center justify-center rounded-2xl border-4 p-4 transition-all ${
               phase === 'stimulus' && targetOption
-                ? `${CHOICE_CONFIG[targetOption]?.bg ?? 'bg-gray-100'} ${CHOICE_CONFIG[targetOption]?.border ?? 'border-gray-300'} scale-110 shadow-lg`
+                ? `${SHAPE_CONFIG[targetOption]?.bg ?? 'bg-gray-100'} ${SHAPE_CONFIG[targetOption]?.border ?? 'border-gray-300'} scale-110 shadow-lg`
                 : 'bg-gray-100 border-gray-200 opacity-30'
             }`}>
-              {phase === 'stimulus' && targetOption ? (
-                <span className="text-5xl animate-bounce">
-                  {CHOICE_CONFIG[targetOption]?.emoji ?? targetOption}
-                </span>
-              ) : (
-                <span className="text-4xl text-gray-300">+</span>
+              {phase === 'stimulus' && targetOption ? (() => {
+                const cfg = SHAPE_CONFIG[targetOption];
+                if (!cfg) return null;
+                return <cfg.Component color={cfg.color} />;
+              })() : (
+                <div className="h-8 w-8"><ShapeSquare color="#d1d5db" /></div>
               )}
             </div>
           </div>
 
           {/* Choice buttons */}
-          <div className={`grid gap-3 ${options.length <= 2 ? 'grid-cols-2' : options.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+          <div className={`grid gap-3 ${
+            options.length <= 2 ? 'grid-cols-2' :
+            options.length === 3 ? 'grid-cols-3' : 'grid-cols-2'
+          }`}>
             {options.map((opt, i) => {
-              const cfg = CHOICE_CONFIG[opt] ?? { emoji: opt, bg: 'bg-gray-100', border: 'border-gray-300', label: opt };
+              const cfg = SHAPE_CONFIG[opt];
+              if (!cfg) return null;
               return (
                 <button
                   key={i}
                   onClick={() => handleTap(i)}
-                  className={`flex flex-col items-center gap-2 rounded-2xl border-4 py-4 transition-all active:scale-95 hover:scale-105 ${cfg.bg} ${cfg.border}`}
+                  className={`flex flex-col items-center gap-2 rounded-2xl border-4 py-4 px-2 transition-all active:scale-95 hover:scale-105 ${cfg.bg} ${cfg.border}`}
                 >
-                  <span className="text-4xl">{cfg.emoji}</span>
+                  <div className="h-12 w-12">
+                    <cfg.Component color={cfg.color} />
+                  </div>
                   <span className="text-xs font-bold text-gray-600">{cfg.label}</span>
                 </button>
               );
@@ -200,11 +234,8 @@ export function ReactionTimePlayer({ level, seed, onComplete }: Props) {
         </div>
       )}
 
-      {/* Hint */}
       <p className="text-center text-xs text-gray-400">
-        {isChoice
-          ? '¡Toca la figura que aparece arriba lo más rápido posible!'
-          : '¡Toca la estrella en cuanto aparezca!'}
+        {isChoice ? '¡Toca la figura que aparece arriba lo más rápido posible!' : '¡Toca el círculo en cuanto aparezca!'}
       </p>
     </div>
   );

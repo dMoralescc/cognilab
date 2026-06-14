@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { cancellation } from '@cognilab/shared';
 import { ShapeIcon } from './ShapeIcon';
 
@@ -13,11 +13,19 @@ export function CancellationPlayer({ level, seed, elapsedMs, onComplete }: Props
   const [content] = useState(() => cancellation.generate(level, seed));
   const [tapped, setTapped] = useState<Set<number>>(new Set());
   const tapTimesRef = useRef<Map<number, number>>(new Map());
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [cellSize, setCellSize] = useState(44);
 
   const { stimuli } = content;
-  const maxFromScreen = Math.max(24, Math.floor((window.innerWidth - 56) / stimuli.gridSize));
-  const preferred = stimuli.gridSize <= 7 ? 56 : stimuli.gridSize <= 9 ? 46 : 38;
-  const cellSize = Math.min(preferred, maxFromScreen);
+
+  useLayoutEffect(() => {
+    if (!gridRef.current) return;
+    const w = gridRef.current.offsetWidth;
+    const gap = 6; // gap-1.5 = 6px
+    const size = Math.floor((w - gap * (stimuli.gridSize - 1)) / stimuli.gridSize);
+    setCellSize(Math.max(24, size));
+  }, [stimuli.gridSize]);
+
   const iconSize = Math.round(cellSize * 0.55);
 
   useEffect(() => {
@@ -66,10 +74,10 @@ export function CancellationPlayer({ level, seed, elapsedMs, onComplete }: Props
       </div>
 
       {/* Grid */}
-      <div className="flex justify-center overflow-x-auto py-1">
+      <div ref={gridRef} className="w-full py-1">
         <div
           className="grid gap-1.5"
-          style={{ gridTemplateColumns: `repeat(${stimuli.gridSize}, ${cellSize}px)` }}
+          style={{ gridTemplateColumns: `repeat(${stimuli.gridSize}, ${cellSize}px)`, width: 'fit-content', margin: '0 auto' }}
         >
           {stimuli.symbols.map((sym, idx) => {
             const isTapped = tapped.has(idx);
