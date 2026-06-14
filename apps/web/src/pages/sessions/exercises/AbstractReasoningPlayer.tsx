@@ -24,7 +24,7 @@ export function AbstractReasoningPlayer({ level, seed, onComplete }: Props) {
   const [{ stimuli }] = useState(() => abstractReasoning.generate(level, seed));
   const [trialIdx, setTrialIdx] = useState(0);
   const [responses, setResponses] = useState<abstractReasoning.AbstractReasoningResponse>([]);
-  const [feedback, setFeedback] = useState<'correct' | 'error' | null>(null);
+  const [_feedback, setFeedback] = useState<'correct' | 'error' | null>(null);
   const startRef = useRef(performance.now());
   const [done, setDone] = useState(false);
 

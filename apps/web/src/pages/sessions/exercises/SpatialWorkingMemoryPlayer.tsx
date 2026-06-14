@@ -17,7 +17,7 @@ export function SpatialWorkingMemoryPlayer({ level, seed, onComplete }: Props) {
   const [updateIdx, setUpdateIdx] = useState(0);
   const [response, setResponse] = useState<spatialWorkingMemory.SpatialWorkingMemoryResponse>([]);
   const [movingObject, setMovingObject] = useState<spatialWorkingMemory.SpatialUpdate | null>(null);
-  const [currentPositions, setCurrentPositions] = useState<Map<number, number>>(
+  const [, setCurrentPositions] = useState<Map<number, number>>(
     () => new Map(stimuli.initialObjects.map((o) => [o.id, o.position])),
   );
   const [selectingFor, setSelectingFor] = useState<number | null>(null);

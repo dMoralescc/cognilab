@@ -13,7 +13,7 @@ const ITEM_SIZE = 48;
 const ICON_SIZE = 28;
 const TOTAL_ROUNDS = 5;
 
-export function VisualSearchPlayer({ level, seed, elapsedMs, onComplete }: Props) {
+export function VisualSearchPlayer({ level, seed, onComplete }: Props) {
   const [round, setRound] = useState(0);
   const [content, setContent] = useState(() => visualSearch.generate(level, seed));
   const [selected, setSelected] = useState<number | null>(null);

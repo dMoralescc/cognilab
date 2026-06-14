@@ -8,7 +8,7 @@ interface Props {
   onComplete: (r: { hits: number; errors: number; reactionTimeMs: number | null; rawData: Record<string, unknown> }) => void;
 }
 
-export function TrailMakingPlayer({ level, seed, elapsedMs, onComplete }: Props) {
+export function TrailMakingPlayer({ level, seed, onComplete }: Props) {
   const [{ stimuli }] = useState(() => trailMaking.generate(level, seed));
   const [connected, setConnected] = useState<number[]>([]);
   const [errors, setErrors] = useState(0);

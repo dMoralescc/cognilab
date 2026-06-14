@@ -11,7 +11,7 @@ export function CategorizationPlayer({ level, seed, onComplete }: Props) {
   const [{ stimuli }] = useState(() => categorization.generate(level, seed));
   const [trialIdx, setTrialIdx] = useState(0);
   const [responses, setResponses] = useState<categorization.CategorizationResponse>([]);
-  const [feedback, setFeedback] = useState<'correct' | 'error' | null>(null);
+  const [_feedback, setFeedback] = useState<'correct' | 'error' | null>(null);
   const startRef = useRef(performance.now());
   const [done, setDone] = useState(false);
 
