@@ -1,69 +1,40 @@
-import { useRef, useState } from 'react';
+import { useEffect } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet, Platform } from 'react-native';
-import { WebView, WebViewMessageEvent } from 'react-native-webview';
+import * as WebBrowser from 'expo-web-browser';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuthStore } from '../../stores/auth';
 
-const WEB_URL = process.env.EXPO_PUBLIC_WEB_URL ?? 'http://localhost:5173';
+const WEB_URL = process.env.EXPO_PUBLIC_WEB_URL ?? 'https://cognilab-web.vercel.app';
 
 export default function SessionPlayer() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { token, patient } = useAuthStore();
-  const webviewRef = useRef<WebView>(null);
-  const [ready, setReady] = useState(false);
+  const { token } = useAuthStore();
 
-  const sessionUrl = `${WEB_URL}/paciente/sesiones/${id}`;
+  const sessionUrl = `${WEB_URL}/paciente/sesiones/${id}?token=${encodeURIComponent(token ?? '')}`;
 
-  // Injected JS: set auth in localStorage so the web portal accepts the session
-  const injectedJS = `
-    (function() {
-      localStorage.setItem('patientAccessToken', ${JSON.stringify(token ?? '')});
-      localStorage.setItem('patientUser', ${JSON.stringify(JSON.stringify(patient ?? {}))});
-      true;
-    })();
-  `;
-
-  const handleMessage = (e: WebViewMessageEvent) => {
-    try {
-      const msg = JSON.parse(e.nativeEvent.data) as { type: string };
-      if (msg.type === 'session:complete') {
-        router.replace('/sessions');
-      }
-    } catch {
-      // ignore non-JSON messages
-    }
-  };
+  useEffect(() => {
+    WebBrowser.openBrowserAsync(sessionUrl, {
+      presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN,
+      toolbarColor: '#4f46e5',
+      controlsColor: '#ffffff',
+    }).then(() => {
+      router.replace('/sessions');
+    });
+  }, []);
 
   return (
     <View style={styles.container}>
-      {/* Back bar */}
       <View style={styles.bar}>
         <TouchableOpacity onPress={() => router.replace('/sessions')} style={styles.backBtn}>
           <Text style={styles.backText}>← Mis sesiones</Text>
         </TouchableOpacity>
-        {!ready && <ActivityIndicator size="small" color="#4f46e5" />}
+        <ActivityIndicator size="small" color="#4f46e5" />
       </View>
-
-      <WebView
-        ref={webviewRef}
-        source={{ uri: sessionUrl }}
-        style={styles.webview}
-        injectedJavaScriptBeforeContentLoaded={injectedJS}
-        onLoadEnd={() => setReady(true)}
-        onMessage={handleMessage}
-        javaScriptEnabled
-        domStorageEnabled
-        sharedCookiesEnabled={Platform.OS === 'ios'}
-        // Allow mixed content (http) on Android for dev
-        mixedContentMode="always"
-        startInLoadingState
-        renderLoading={() => (
-          <View style={styles.loading}>
-            <ActivityIndicator size="large" color="#4f46e5" />
-          </View>
-        )}
-      />
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#4f46e5" />
+        <Text style={styles.label}>Abriendo sesión...</Text>
+      </View>
     </View>
   );
 }
@@ -83,6 +54,6 @@ const styles = StyleSheet.create({
   },
   backBtn: { paddingVertical: 4, paddingRight: 16 },
   backText: { fontSize: 14, fontWeight: '600', color: '#4f46e5' },
-  webview: { flex: 1 },
-  loading: { position: 'absolute', inset: 0, alignItems: 'center', justifyContent: 'center' },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16 },
+  label: { fontSize: 16, color: '#6b7280' },
 });

@@ -25,12 +25,14 @@
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store",
-      "react-native-webview"
+      "expo-secure-store"
     ],
     "extra": {
-      "EXPO_PUBLIC_API_URL": "http://localhost:3000/api",
-      "EXPO_PUBLIC_WEB_URL": "http://localhost:5173"
+      "EXPO_PUBLIC_API_URL": "https://cognilab-api.up.railway.app/api",
+      "EXPO_PUBLIC_WEB_URL": "https://cognilab-web.vercel.app",
+      "eas": {
+        "projectId": "cognilab"
+      }
     }
   }
 }
