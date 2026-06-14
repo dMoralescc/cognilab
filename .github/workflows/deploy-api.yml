@@ -41,7 +41,6 @@ jobs:
         run: pnpm --filter @cognilab/api build
 
       - name: Deploy a Railway
-        uses: bervProject/railway-deploy@v1
-        with:
-          railway_token: ${{ secrets.RAILWAY_TOKEN }}
-          service: cognilab-api
+        run: npx @railway/cli@latest up --service cognilab-api --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
