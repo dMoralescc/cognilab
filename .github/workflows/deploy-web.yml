@@ -20,7 +20,7 @@ jobs:
 
     env:
       VERCEL_ORG_ID: team_942edPHYMfARbwubvcAPzSb6
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_PROJECT_ID: prj_jwuRusaDTU0kz1MuRAvGLc9faDRH
 
     steps:
       - name: Checkout
@@ -39,7 +39,7 @@ jobs:
         run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Pull Vercel environment
-        run: npx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_SCOPE }}
+        run: npx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} --scope=daniels-projects-ff1bb80b
 
       - name: Build via Vercel
         run: npx vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
