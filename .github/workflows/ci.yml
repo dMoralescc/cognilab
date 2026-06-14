@@ -31,14 +31,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
+      - name: Generate Prisma Client
+        run: pnpm --filter @cognilab/api db:generate
+
       - name: Typecheck
         run: pnpm turbo typecheck
 
       - name: Lint
         run: pnpm turbo lint
-
-      - name: Generate Prisma Client
-        run: pnpm --filter @cognilab/api db:generate
 
       - name: Test
         run: pnpm turbo test
