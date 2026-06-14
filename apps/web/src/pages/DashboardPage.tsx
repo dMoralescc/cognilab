@@ -38,23 +38,23 @@ export function DashboardPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">
+      <div className="mb-5">
+        <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
           Hola, {professional?.name.split(' ')[0]} 👋
         </h1>
-        <p className="text-gray-500">Aquí tienes el resumen de tu actividad.</p>
+        <p className="text-sm text-gray-500">Aquí tienes el resumen de tu actividad.</p>
       </div>
 
       {/* Stats */}
-      <div className="mb-8 grid grid-cols-3 gap-4">
+      <div className="mb-6 grid grid-cols-3 gap-2 sm:gap-4">
         {[
-          { label: 'Pacientes activos', value: activePatients, color: 'text-indigo-600' },
-          { label: 'Sesiones totales', value: totalSessions, color: 'text-emerald-600' },
-          { label: 'Pacientes archivados', value: patients.length - activePatients, color: 'text-gray-500' },
+          { label: 'Activos', value: activePatients, color: 'text-indigo-600' },
+          { label: 'Sesiones', value: totalSessions, color: 'text-emerald-600' },
+          { label: 'Archivados', value: patients.length - activePatients, color: 'text-gray-500' },
         ].map(({ label, value, color }) => (
-          <div key={label} className="rounded-xl border border-gray-200 bg-white p-5">
-            <p className="text-sm text-gray-500">{label}</p>
-            <p className={`mt-1 text-3xl font-bold ${color}`}>
+          <div key={label} className="rounded-xl border border-gray-200 bg-white p-3 sm:p-5 text-center sm:text-left">
+            <p className="text-xs text-gray-500 sm:text-sm">{label}</p>
+            <p className={`mt-0.5 text-2xl font-bold sm:text-3xl ${color}`}>
               {isLoading ? '—' : value}
             </p>
           </div>
