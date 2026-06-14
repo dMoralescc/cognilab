@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#4f46e5"
     },
     "ios": {
       "supportsTablet": true,
@@ -19,9 +19,18 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#4f46e5"
       },
       "package": "com.cognilab.app"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "react-native-webview"
+    ],
+    "extra": {
+      "EXPO_PUBLIC_API_URL": "http://localhost:3000/api",
+      "EXPO_PUBLIC_WEB_URL": "http://localhost:5173"
     }
   }
 }
